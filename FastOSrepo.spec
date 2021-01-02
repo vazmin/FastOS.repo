@@ -21,8 +21,6 @@ commit version: %{CommitVersion}
 %prep
 %setup -q
 
-%build
-
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/etc/yum.repos.d/
