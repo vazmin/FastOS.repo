@@ -2,7 +2,7 @@
 [FastOS]
 name=FastOS RPM repository for Enterprise Linux $releasever - $basearch
 baseurl=http://www.fastken.com/yumrepo/el$releasever/$basearch/
-metadata_expire=3600m
+metadata_expire=3600
 gpgcheck=1
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-FastOS
