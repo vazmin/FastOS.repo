@@ -14,5 +14,3 @@ list one package (eg. libfastcommon) in FastOS.repo:
 ```
 yum list libfastcommon
 ```
-
-![微信公众号](https://gitee.com/fastdfs100/FastCFS/raw/master/images/wechat_subscribe.jpg)
