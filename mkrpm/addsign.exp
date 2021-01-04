@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+
+set file [lindex $argv 0]
+set passwd [lindex $argv 1]
+spawn rpm --addsign $file
+expect "*pass phrase: "
+send -- "$passwd\r"
+expect eof
