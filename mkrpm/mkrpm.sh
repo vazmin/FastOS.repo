@@ -53,6 +53,10 @@ mkdir -p $work_path
 
 pack=$(basename $spec_path | sed 's/.spec$//g' | sed 's/.spec.in$//g')
 cd $pack_path
+if [ -f make.sh ]; then
+   ./make.sh clean >/dev/null 2>&1
+fi
+
 git pull
 if [ $? -ne 0 ]; then
    exit
