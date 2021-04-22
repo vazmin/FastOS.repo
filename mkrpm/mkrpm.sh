@@ -1,19 +1,46 @@
 #!/bin/bash
 
-[ "x$1" == 'x' ] && echo "$0 <package-path>" && exit 1
+[ "x$1" == 'x' ] && echo "$0 <package-path> [module]" && exit 1
 
-if [ -n "$2" ] && [ "$2" == "--force" ]; then
-  overwrite=1
-else
-  overwrite=0
+package=$(echo ${1%/} | awk -F / '{print $NF}')
+module_name=''
+overwrite=0
+if [ -n "$2" ]; then
+  if [ "$2" == "--force" ]; then
+    overwrite=1
+  else
+    module_name=$2
+    if [ -n "$3" ] && [ "$3" == "--force" ]; then
+      overwrite=1
+    fi
+  fi
 fi
 
-if [ -f $1/*.spec ]; then
-  mv_spec=0
-  spec_path=$(ls $(pwd)/$1/*.spec)
+if [ -z $module_name ]; then
+  if [ -f $1/$package.spec ]; then
+    mv_spec=0
+    spec_path=$(ls $(pwd)/$1/$package.spec)
+  elif [ -f $1/$package.spec.in ]; then
+    mv_spec=1
+    spec_path=$(ls $(pwd)/$1/$package.spec.in)
+  elif [ -f $1/*.spec ]; then
+    mv_spec=0
+    spec_path=$(ls $(pwd)/$1/*.spec)
+  elif [ -f $1/*.spec.in ]; then
+    mv_spec=1
+    spec_path=$(ls $(pwd)/$1/*.spec.in)
+  fi
 else
-  mv_spec=1
-  spec_path=$(ls $(pwd)/$1/*.spec.in)
+  if [ -f $1/$module_name.spec ]; then
+    mv_spec=0
+    spec_path=$(ls $(pwd)/$1/$module_name.spec)
+  elif [ -f $1/$module_name.spec.in ]; then
+    mv_spec=1
+    spec_path=$(ls $(pwd)/$1/$module_name.spec.in)
+  else
+    echo "spec file for moudle $module_name not exist"
+    exit 2
+  fi
 fi
 
 if [ $? -ne 0 ]; then
