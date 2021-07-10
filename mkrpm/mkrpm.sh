@@ -84,6 +84,7 @@ if [ -f make.sh ]; then
    ./make.sh clean >/dev/null 2>&1
 fi
 
+git checkout master
 git pull
 if [ $? -ne 0 ]; then
    exit
@@ -116,14 +117,22 @@ if [ ! -d $rpmdir ]; then
 fi
 
 passwd=$(cat /etc/mkrpm/passwd)
-fdebug=$pack-debuginfo-$ver-1.$dist.rpm
-dsize=`ls -l $rpmdir/$fdebug | awk '{print $5}'`
-[ $? -eq 0 ] && [ $dsize -gt 10000 ] && files=$fdebug && $shell_path/addsign.exp $rpmdir/$fdebug $passwd
+files=''
 
 for rpm in `cat $spec_path | grep '%define' | grep -v Version | awk '{print $3}'` `cat $spec_path | grep Name: | grep -v '\}' | awk -F: '{print $2}'`
 do
+
+fdebug=$rpm-debuginfo-$ver-1.$dist.rpm
+if [ -f $rpmdir/$fdebug ]; then
+  dsize=`ls -l $rpmdir/$fdebug | awk '{print $5}'`
+  if [ $? -eq 0 ] && [ $dsize -gt 10000 ]; then
+    $shell_path/addsign.exp $rpmdir/$fdebug $passwd
+    files="$files $fdebug"
+  fi
+fi
+
 file=$rpm-$ver-1.$dist.rpm
-if [ -f $rpmdir/$file ] && [ $file != $fdebug ]; then
+if [ -f $rpmdir/$file ]; then
   $shell_path/addsign.exp $rpmdir/$file $passwd
   files="$files $file"
 fi
