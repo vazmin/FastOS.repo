@@ -26,6 +26,10 @@ tar -zxvf ${MODULE}.tar.gz
 tar -czvf ${MODULE}_${VERSION}.orig.tar.gz ${MODULE}-${VERSION}
 cd ${MODULE}-${VERSION}
 
+if ls debian/*.ex >/dev/null 2>&1 ; then
+  rm -rf debian
+fi
+
 if [ ! -d debian ]; then
   echo 'warning: get debian in pkg branch.'
   mkdir -p /tmp/${MODULE}
