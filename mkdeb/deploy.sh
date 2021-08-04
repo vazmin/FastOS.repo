@@ -3,11 +3,11 @@
 set -euo pipefail
 
 DIST_MODULE_DIR=$1
-REMOTE_HOST=us160
-REMOTE_DEB_DIR=~/deb
-REMOTE_REPO_BASEDIR=~/repos/apt/debian
-DISTRIBUTION=fast-os
-passwd=$(cat /etc/mkdeb/passwd)
+REMOTE_HOST=cfs
+REMOTE_DEB_DIR=/home/vazmin/deb
+REMOTE_REPO_BASEDIR=/usr/html/aptrepo/fastos
+DISTRIBUTION=stable
+passwd=/etc/mkrpm/passwd
 EXP=/tmp/reprepro.exp
 
 scp mkdeb/reprepro.exp ${REMOTE_HOST}:${EXP}

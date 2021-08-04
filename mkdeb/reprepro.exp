@@ -2,7 +2,7 @@
 
 set timeout 5
 
-set passphrase "$env(SIGNING_PASSWORD)"
+set passphrase [exec cat $env(SIGNING_PASSWORD)]
 
 # Call reprepro with variable length arguments, so that this script
 # takes the same arguments as the original program
@@ -11,7 +11,7 @@ spawn reprepro {*}$argv
 expect {
     timeout                     {send_error "\nFailed to get password prompt\n";
                                  exit 1}
-    "Please enter passphrase*"  {send -- "$passphrase\r";
+    "Please enter"              {send -- "$passphrase\r";
                                  send_user " *** entering passphrase ***";
                                  exp_continue}
 }

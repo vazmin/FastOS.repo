@@ -33,7 +33,7 @@ fi
 if [ ! -d debian ]; then
   echo 'warning: get debian in pkg branch.'
   mkdir -p /tmp/${MODULE}
-  curl -o /tmp/${MODULE}/pkg-debian.zip -sSL https://github.com/vazmin/${MODULE}/archive/refs/heads/pkg-debian.zip
+  curl -o /tmp/${MODULE}/pkg-debian.zip -sSL https://codeload.github.com/vazmin/${MODULE}/zip/refs/heads/pkg-debian
   unzip /tmp/${MODULE}/pkg-debian.zip -d /tmp/${MODULE}
   cp -r /tmp/${MODULE}/*/debian .
   rm -rf /tmp/${MODULE}
