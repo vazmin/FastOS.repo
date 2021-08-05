@@ -1,19 +1,24 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 
-BUILD_DIR=$1
-MODULE=$2
-TAGS=$3
-VERSION=$4
-
+VERSION=$(printenv "${MODULE}_version")
+TAGS="V${VERSION}"
+echo "build module ${MODULE} $TAGS"
 DP_OPTS=${DPKG_OPTIONS:-}
-MUDULE_DIR=${BUILD_DIR}/${MODULE}
-mkdir -p ${MUDULE_DIR}
 
 
-DIST=${MUDULE_DIR}/${MODULE}.tar.gz
+DIR=${SUB_MODULE:-${MODULE}}
+MODULE_DIR=${BUILD_DIR}/${DIR}
+mkdir -p ${MODULE_DIR}
+
+if 
+
+
+echo "module dir: ${MODULE_DIR}"
+
+DIST=${MODULE_DIR}/${MODULE}.tar.gz
 
 if [ ! -f ${DIST} ]; then
   source_url=https://codeload.github.com/happyfish100/${MODULE}/tar.gz/refs/tags/${TAGS}
@@ -21,7 +26,7 @@ if [ ! -f ${DIST} ]; then
   curl -o ${DIST} -sSL ${source_url}
 fi
 
-cd ${MUDULE_DIR}
+cd ${MODULE_DIR}
 tar -zxvf ${MODULE}.tar.gz
 tar -czvf ${MODULE}_${VERSION}.orig.tar.gz ${MODULE}-${VERSION}
 cd ${MODULE}-${VERSION}
