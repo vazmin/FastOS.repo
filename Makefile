@@ -9,8 +9,7 @@ export DPKG=dpkg-buildpackage
 export libfastcommon_version = 1.0.53
 export libserverframe_version = 1.1.10
 export fastdir_version = 2.3.0
-export fastcfs_version = 2.3.0
-export fastcfs_version = 2.3.0
+export faststore_version = 2.3.0
 export fastcfs_version = 2.3.0
 
 .PHONY: all
@@ -43,7 +42,7 @@ fastdir: build-fastdir install-fastdir deploy-fastdir
 # 	./mkdeb/mkdeb.sh $(BUILD_DIR) fastDIR $(fastcfs_version)
 
 .PHONY: faststore
-faststore: build-faststore install-fastdir deploy-faststore
+faststore: build-faststore install-faststore deploy-faststore
 
 # build-faststore:
 # 	./mkdeb/mkdeb.sh $(BUILD_DIR) faststore $(fastcfs_version)

@@ -13,22 +13,29 @@ DIR=${SUB_MODULE:-${MODULE}}
 MODULE_DIR=${BUILD_DIR}/${DIR}
 mkdir -p ${MODULE_DIR}
 
-if 
-
 
 echo "module dir: ${MODULE_DIR}"
 
-DIST=${MODULE_DIR}/${MODULE}.tar.gz
+cd ${MODULE_DIR}
+
+DIST=${MODULE}.tar.gz
 
 if [ ! -f ${DIST} ]; then
   source_url=https://codeload.github.com/happyfish100/${MODULE}/tar.gz/refs/tags/${TAGS}
   echo "get ${source_url}"
   curl -o ${DIST} -sSL ${source_url}
+
+  tar -zxvf ${MODULE}.tar.gz
+  # FastCFS-x.x.x to fastcfs-x.x.x
+  for file in * ; do
+    if [[ $file == *[[:upper:]]* ]]; then
+      mv $file `echo $file | sed 's/\(.*\)/\L\1/'`
+    fi
+  done
+
+  tar -czvf ${MODULE}_${VERSION}.orig.tar.gz ${MODULE}-${VERSION}
 fi
 
-cd ${MODULE_DIR}
-tar -zxvf ${MODULE}.tar.gz
-tar -czvf ${MODULE}_${VERSION}.orig.tar.gz ${MODULE}-${VERSION}
 cd ${MODULE}-${VERSION}
 
 if ls debian/*.ex >/dev/null 2>&1 ; then
