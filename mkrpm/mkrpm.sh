@@ -85,6 +85,13 @@ if [ -f make.sh ]; then
 fi
 
 git checkout master
+if [ $? -ne 0 ]; then
+  git checkout main
+  if [ $? -ne 0 ]; then
+    exit
+  fi
+fi
+
 git pull
 if [ $? -ne 0 ]; then
    exit
