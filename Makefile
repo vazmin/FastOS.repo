@@ -15,7 +15,7 @@ export faststore_version = 3.0.0
 export fastcfs_version = 3.0.0
 
 .PHONY: all
-all: libfastcommon libserverframe libdiskallocator fastcfs-auth-client fastdir faststore fastcfs
+all: libfastcommon libserverframe libdiskallocator fastcfs-auth-client fastdir-client libfdirstorage fastdir faststore fastcfs
 
 .PHONY: libfastcommon
 libfastcommon: build-libfastcommon install-libfastcommon deploy-libfastcommon
@@ -55,7 +55,7 @@ fastdir: build-fastdir install-fastdir deploy-fastdir
 build-fastdir:
 	DPKG_OPTIONS=-Ppkg.server \
 	BUILD_DIR=${BUILD_DIR} \
-	MODULE=fastcfs \
+	MODULE=fastdir \
 	./mkdeb/mkdeb.sh
 
 .PHONY: faststore
