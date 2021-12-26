@@ -21,11 +21,18 @@ cd ${MODULE_DIR}
 DIST=${MODULE}.tar.gz
 
 if [ ! -f ${DIST} ]; then
-  source_url=https://codeload.github.com/happyfish100/${MODULE}/tar.gz/refs/tags/${TAGS}
-  echo "get ${source_url}"
-  curl -o ${DIST} -sSL ${source_url}
-
-  tar -zxvf ${MODULE}.tar.gz
+  
+  if [[ ${MODULE} == "libfdirstorage"]]; then
+    git clone git@gitee.com:fastdfs100/libfdirstorage.git
+    mv libfdirstorage libfdirstorage-${VERSION}
+    tar -cxvf ${MODULE}.tar.gz libfdirstorage-${VERSION}
+  else
+    source_url=https://codeload.github.com/vazmin/${MODULE}/tar.gz/refs/tags/${TAGS}
+    echo "get ${source_url}"
+    curl -o ${DIST} -sSL ${source_url}
+    tar -zxvf ${MODULE}.tar.gz
+  fi
+  
   # FastCFS-x.x.x to fastcfs-x.x.x
   for file in * ; do
     if [[ $file == *[[:upper:]]* ]]; then
