@@ -5,14 +5,16 @@ BUILD_DIR ?= build
 export KEY_ID=$(if $(DEB_KEY_ID),$(DEB_KEY_ID),chwingwong@outlook.com)
 # DPKG=debuild
 export DPKG=dpkg-buildpackage
+# G: git clone; T: download by TAG 
+export SOURCES_FORM=G
 
-export libfastcommon_version = 1.0.54
-export libserverframe_version = 1.1.11
-export libdiskallocator_version = 1.0.0
-export libfdirstorage_version = 1.0.0
-export fastdir_version = 3.0.0
-export faststore_version = 3.0.0
-export fastcfs_version = 3.0.0
+export libfastcommon_version = 1.0.55
+export libserverframe_version = 1.1.12
+export libdiskallocator_version = 1.0.1
+export libfdirstorage_version = 1.0.1
+export fastdir_version = 3.1.0
+export faststore_version = 3.1.0
+export fastcfs_version = 3.1.0
 
 .PHONY: all
 all: libfastcommon libserverframe libdiskallocator fastcfs-auth-client fastdir-client libfdirstorage fastdir faststore fastcfs

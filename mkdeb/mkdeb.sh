@@ -21,11 +21,15 @@ cd ${MODULE_DIR}
 DIST=${MODULE}.tar.gz
 
 if [ ! -f ${DIST} ]; then
-  
-  if [[ ${MODULE} == "libfdirstorage" ]]; then
-    git clone git@gitee.com:fastdfs100/libfdirstorage.git
-    mv libfdirstorage libfdirstorage-${VERSION}
-    tar -czvf ${MODULE}.tar.gz libfdirstorage-${VERSION}
+
+  if [[ ${MODULE} == "libfdirstorage" ]] || [[ ${SOURCES_FORM} == "G" ]]; then
+    if [[ ${MODULE} == "libfdirstorage" ]];then
+      git clone git@gitee.com:fastdfs100/libfdirstorage.git
+    else
+      git clone git@github.com:happyfish100/${MODULE}.git
+    fi
+    mv ${MODULE} ${MODULE}-${VERSION}
+    tar -czvf ${MODULE}.tar.gz ${MODULE}-${VERSION}
   else
     source_url=https://codeload.github.com/vazmin/${MODULE}/tar.gz/refs/tags/${TAGS}
     echo "get ${source_url}"
