@@ -99,7 +99,9 @@ fi
 
 commit_version=$(git log | head -n 1 | awk '{print $2;}')
 
-ver=$(cat $spec_path | grep ' [0-9]*\.[0-9]*\.[0-9]*$' | awk '{ print $NF; }' | head -n 1)
+ver=$(cat $spec_path | fgrep 'Version:' | grep ' [0-9]*\.[0-9]*\.[0-9]*$' | awk '{print $NF;}' | head -n 1)
+release=$(cat $spec_path | fgrep 'Release:' | awk '{print $NF;}' | awk -F '%' '{print $1;}' | head -n 1)
+
 cd $work_path && rm -rf $pack-$ver &&  cp -r $pack_path $pack-$ver || exit 1
 if [ $mv_spec -eq 1 ]; then
   mv $pack-$ver/$pack.spec.in $pack-$ver/$pack.spec || exit 1
@@ -129,7 +131,8 @@ files=''
 for rpm in `cat $spec_path | grep '%define' | grep -v Version | awk '{print $3}'` `cat $spec_path | grep Name: | grep -v '\}' | awk -F: '{print $2}'`
 do
 
-fdebug=$rpm-debuginfo-$ver-1.$dist.rpm
+version=$ver-$release
+fdebug=$rpm-debuginfo-$version.$dist.rpm
 if [ -f $rpmdir/$fdebug ]; then
   dsize=`ls -l $rpmdir/$fdebug | awk '{print $5}'`
   if [ $? -eq 0 ] && [ $dsize -gt 10000 ]; then
@@ -138,7 +141,7 @@ if [ -f $rpmdir/$fdebug ]; then
   fi
 fi
 
-file=$rpm-$ver-1.$dist.rpm
+file=$rpm-$version.$dist.rpm
 if [ -f $rpmdir/$file ]; then
   $shell_path/addsign.exp $rpmdir/$file $passwd
   files="$files $file"
@@ -147,8 +150,8 @@ fi
 done
 
 cd $rpmdir
-filewithversion=$rpm-$ver-1.$dist
-stableexist=$(yum list $filewithversion 2>/dev/null | fgrep $rpm | fgrep $ver-1.$arch)
+filewithversion=$rpm-$version.$dist
+stableexist=$(yum list $filewithversion 2>/dev/null | fgrep $rpm | fgrep $version.$arch)
 if [ $overwrite -eq 1 ] || [ -z "$stableexist" ]; then
   IP=$(ifconfig -a | grep -w inet | grep -v 127.0.0.1 | awk '{print $2}')
   REPO_PATH="/usr/html/yumrepo/$arch/x86_64"
