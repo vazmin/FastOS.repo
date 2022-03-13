@@ -8,13 +8,13 @@ export DPKG=dpkg-buildpackage
 # G: git clone; T: download by TAG 
 export SOURCES_FORM=G
 
-export libfastcommon_version = 1.0.55
-export libserverframe_version = 1.1.12
-export libdiskallocator_version = 1.0.1
-export libfdirstorage_version = 1.0.1
-export fastdir_version = 3.1.0
-export faststore_version = 3.1.0
-export fastcfs_version = 3.1.0
+export libfastcommon_version = 1.0.56
+export libserverframe_version = 1.1.13
+export libdiskallocator_version = 1.0.2
+export libfdirstorage_version = 1.0.2
+export fastdir_version = 3.2.0
+export faststore_version = 3.2.0
+export fastcfs_version = 3.2.0
 
 .PHONY: all
 all: libfastcommon libserverframe libdiskallocator fastcfs-auth-client fastdir-client libfdirstorage fastdir faststore fastcfs
