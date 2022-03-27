@@ -1,0 +1,26 @@
+name: FastCFS Build Action
+on: [push]
+jobs:
+  libfastcommon-actions:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out libfastcommon repository code
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/libfastcommon
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/libfastcommon/source
+      - run: echo "💡 The happyfish100/libfastcommon repository has been cloned to the runner."
+      - name: List files in the repository
+        run: |
+          apt update
+          apt install build-essential debhelper -y
+          ls ${{ github.workspace }}
+          cd modules/libfastcommon/source
+          dpkg-buildpackage -b --no-sign
+      - name: upload libfastcommon artifact 
+        uses: actions/upload-artifact@v3
+        with:
+          name: libfastcommon
+          path: modules/libfastcommon/*.deb
+      
