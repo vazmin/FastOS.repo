@@ -13,8 +13,8 @@ jobs:
       - run: echo "💡 The happyfish100/libfastcommon repository has been cloned to the runner."
       - name: List files in the repository
         run: |
-          apt update
-          apt install build-essential debhelper -y
+          apt-get update
+          apt-get install build-essential debhelper -y
           ls ${{ github.workspace }}
           cd modules/libfastcommon/source
           dpkg-buildpackage -b --no-sign
