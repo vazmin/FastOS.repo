@@ -1,13 +1,15 @@
 name: FastCFS Build Action
 on: [push]
 jobs:
-  libfastcommon-actions:
+  build-mudules:
     runs-on: ubuntu-18.04
     steps:
       - name: set up build env
         run: |
+          curl http://www.fastken.com/aptrepo/packages.fastos.pub | sudo apt-key add
+          sudo sh -c 'echo "deb http://www.fastken.com/aptrepo/fastos/ fastos main" >> /etc/apt/sources.list'
           sudo apt-get update
-          sudo apt-get install build-essential debhelper -y
+          sudo apt-get install build-essential debhelper libfuse3-dev libaio-dev -y
       - name: checkout libfastcommon
         uses: actions/checkout@v3
         with: 
@@ -35,15 +37,108 @@ jobs:
       - name: install libserverframe
         run: |
           for f in modules/libserverframe/*.deb; do sudo dpkg --force-all -i $f; done;
+
+      - name: checkout libdiskallocator
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/libdiskallocator
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/libdiskallocator/source
+      - name: build libdiskallocator
+        run: |
+          cd modules/libdiskallocator/source
+          dpkg-buildpackage -b --no-sign
+      - name: install libdiskallocator
+        run: |
+          for f in modules/libdiskallocator/*.deb; do sudo dpkg --force-all -i $f; done;
+
+      - name: checkout fastcfs-auth-client
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/FastCFS
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/fastcfs-auth-client/source
+      - name: build fastcfs-auth-client
+        run: |
+          cd modules/fastcfs-auth-client/source
+          dpkg-buildpackage -b --no-sign -Ppkg.client
+      - name: install fastcfs-auth-client
+        run: |
+          for f in modules/fastcfs-auth-client/*.deb; do sudo dpkg --force-all -i $f; done;
       
-      - name: upload libfastcommon artifact 
+      - name: checkout fastdir-client
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/fastDIR
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/fastdir-client/source
+      - name: build fastdir-client
+        run: |
+          cd modules/fastdir-client/source
+          dpkg-buildpackage -b --no-sign -Ppkg.client
+      - name: install fastdir-client
+        run: |
+          for f in modules/fastdir-client/*.deb; do sudo dpkg --force-all -i $f; done;
+      
+      - name: checkout libfdirstorage
+        uses: actions/checkout@v3
+        with: 
+          repository: https://gitee.com/fastdfs100/libfdirstorage.git
+          token: ${{secrets.GITEE_TOKEN}}
+          path: modules/libfdirstorage/source
+      - name: build libfdirstorage
+        run: |
+          cd modules/libfdirstorage/source
+          dpkg-buildpackage -b --no-sign
+      - name: install libfdirstorage
+        run: |
+          for f in modules/libfdirstorage/*.deb; do sudo dpkg --force-all -i $f; done;
+
+      - name: checkout fastdir
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/fastDIR
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/fastdir/source
+      - name: build fastdir
+        run: |
+          cd modules/fastdir/source
+          dpkg-buildpackage -b --no-sign -Ppkg.server
+      - name: install fastdir
+        run: |
+          for f in modules/fastdir/*.deb; do sudo dpkg --force-all -i $f; done;
+
+      - name: checkout faststore
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/faststore
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/faststore/source
+      - name: build faststore
+        run: |
+          cd modules/faststore/source
+          dpkg-buildpackage -b --no-sign
+      - name: install faststore
+        run: |
+          for f in modules/faststore/*.deb; do sudo dpkg --force-all -i $f; done;
+      
+      - name: checkout fastcfs
+        uses: actions/checkout@v3
+        with: 
+          repository: happyfish100/fastcfs
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: modules/fastcfs/source
+      - name: build fastcfs
+        run: |
+          cd modules/fastcfs/source
+          dpkg-buildpackage -b --no-sign -Ppkg.fastcfs.core
+      - name: install fastcfs
+        run: |
+          for f in modules/fastcfs/*.deb; do sudo dpkg --force-all -i $f; done;
+
+      - name: upload artifact 
         uses: actions/upload-artifact@v3
         with:
-          name: libfastcommon
-          path: modules/libfastcommon/*.deb
-      - name: upload libserverframe artifact 
-        uses: actions/upload-artifact@v3
-        with:
-          name: libserverframe
-          path: modules/libserverframe/*.deb
+          name: FastOS-DEB
+          path: modules/*/*.deb
       
