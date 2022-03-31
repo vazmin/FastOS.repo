@@ -83,8 +83,8 @@ jobs:
       - name: checkout libfdirstorage
         uses: actions/checkout@v3
         with: 
-          repository: https://gitee.com/fastdfs100/libfdirstorage.git
-          token: ${{secrets.GITEE_TOKEN}}
+          repository: vazmin/libfdirstorage-mirror
+          token: ${{secrets.GH_PAT}}
           path: modules/libfdirstorage/source
       - name: build libfdirstorage
         run: |
@@ -92,6 +92,7 @@ jobs:
           dpkg-buildpackage -b --no-sign
       - name: install libfdirstorage
         run: |
+          rm -rf modules/libfdirstorage/source
           for f in modules/libfdirstorage/*.deb; do sudo dpkg --force-all -i $f; done;
 
       - name: checkout fastdir
