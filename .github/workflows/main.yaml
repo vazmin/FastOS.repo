@@ -61,7 +61,7 @@ jobs:
       - name: build fastcfs-auth-client
         run: |
           cd modules/fastcfs-auth-client/source
-          dpkg-buildpackage -b --no-sign -Ppkg.client
+          dpkg-buildpackage -b --no-sign -Ppkg.auth.client
       - name: install fastcfs-auth-client
         run: |
           for f in modules/fastcfs-auth-client/*.deb; do sudo dpkg --force-all -i $f; done;
