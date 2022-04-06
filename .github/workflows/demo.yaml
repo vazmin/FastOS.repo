@@ -13,10 +13,12 @@ jobs:
       - name: set env var
         run: |
           chmod +x version
-          ./version
+          . version
+          echo "lpkgdemo_version=$lpkgdemo_version; lpkgdemo_revision=$lpkgdemo_revision"
           envsubst < mkdeb/substvars.in >> substvars
           cat substvars
           sed -i 's/export//g' version >> $GITHUB_ENV
+          echo "lpkgdemo_version=$lpkgdemo_version; lpkgdemo_revision=$lpkgdemo_revision"
       - name: upgrade lpkg-demo
         uses: actions/checkout@v3
         with: 
@@ -30,7 +32,7 @@ jobs:
           cat lpkg-demo/debian/substvars
           . version
           cd lpkg-demo
-          dch -v ${lpkgdemo_revision} -M -c "upgrade to ${lpkgdemo_revision}"
+          dch --distribution unstable -v ${lpkgdemo_revision} -M "upgrade to ${lpkgdemo_revision}"
           cat debian/changelog
           
 
