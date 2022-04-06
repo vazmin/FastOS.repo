@@ -42,7 +42,7 @@ jobs:
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           branch: main
           directory: lpkg-demo
           repository: vazmin/lpkg-demo
