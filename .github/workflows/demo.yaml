@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: set up run env
         run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           sudo apt-get update
           sudo apt-get install devscripts -y
       - name: checkout
@@ -25,6 +27,8 @@ jobs:
           repository: vazmin/lpkg-demo
           token: ${{secrets.GITHUB_TOKEN}}
           path: lpkg-demo
+          persist-credentials: false
+          fetch-depth: 0 
       - name: update substars
         run: |
           awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
@@ -34,5 +38,13 @@ jobs:
           cd lpkg-demo
           dch --distribution unstable -v ${lpkgdemo_revision} -M "upgrade to ${lpkgdemo_revision}"
           cat debian/changelog
+          git add debian
+      - name: Push lpkg-demo changes
+        uses: vazmin/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          directory: lpkg-demo
+          repository: lpkg-demo
           
 
