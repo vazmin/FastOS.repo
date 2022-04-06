@@ -1,0 +1,35 @@
+name: Demo Action
+on: [push]
+jobs:
+  version-set:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: set up env
+        run: |
+          sudo apt-get update
+          sudo apt-get install devscripts -y
+      - name: set env
+        uses: actions/checkout@v3
+        run: |
+          chmod +x version
+          ./version
+          envsubst < mkdeb/substvars.in >> substvars
+          cat substvars
+          sed -i 's/export//g' version >>
+      - name: upgrade lpkg-demo
+        uses: actions/checkout@v3
+        with: 
+          repository: vazmin/lpkg-demo
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: lpkg-demo
+      - name: update substars
+        run: |
+          awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
+          cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
+          cat lpkg-demo/debian/substvars
+          . version
+          cd lpkg-demo
+          dch -v ${lpkgdemo_revision} -M -c "upgrade to ${lpkgdemo_revision}"
+          cat debian/changelog
+          
+
