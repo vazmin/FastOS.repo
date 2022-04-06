@@ -4,18 +4,19 @@ jobs:
   version-set:
     runs-on: ubuntu-18.04
     steps:
-      - name: set up env
+      - name: set up run env
         run: |
           sudo apt-get update
           sudo apt-get install devscripts -y
-      - name: set env
+      - name: checkout
         uses: actions/checkout@v3
+      - name: set env var
         run: |
           chmod +x version
           ./version
           envsubst < mkdeb/substvars.in >> substvars
           cat substvars
-          sed -i 's/export//g' version >>
+          sed -i 's/export//g' version >> $GITHUB_ENV
       - name: upgrade lpkg-demo
         uses: actions/checkout@v3
         with: 
