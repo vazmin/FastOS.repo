@@ -14,13 +14,11 @@ jobs:
         uses: actions/checkout@v3
       - name: set env var
         run: |
-          chmod +x version
           . version
-          echo "lpkgdemo_version=$lpkgdemo_version; lpkgdemo_revision=$lpkgdemo_revision"
           envsubst < mkdeb/substvars.in >> substvars
-          cat substvars
-          sed -i 's/export//g' version >> $GITHUB_ENV
-          echo "lpkgdemo_version=$lpkgdemo_version; lpkgdemo_revision=$lpkgdemo_revision"
+          envsubst < version >> /tmp/version.out
+          sed -i 's/export//g' /tmp/version.out
+          cat /tmp/version.out >> $GITHUB_ENV
       - name: upgrade lpkg-demo
         uses: actions/checkout@v3
         with: 
@@ -34,12 +32,11 @@ jobs:
           awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
           cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
           cat lpkg-demo/debian/substvars
-          . version
           cd lpkg-demo
           dch --distribution unstable -v ${lpkgdemo_revision} -M "upgrade to ${lpkgdemo_revision}"
           cat debian/changelog
           git add debian
-          git commit -m 'upgrade to ${lpkgdemo_version}'
+          git commit -m "action bot: upgrade to ${lpkgdemo_version}"
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
         with:
