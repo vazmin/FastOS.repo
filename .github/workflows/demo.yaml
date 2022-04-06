@@ -39,6 +39,7 @@ jobs:
           dch --distribution unstable -v ${lpkgdemo_revision} -M "upgrade to ${lpkgdemo_revision}"
           cat debian/changelog
           git add debian
+          git commit -m 'upgrade to ${lpkgdemo_version}'
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
         with:
