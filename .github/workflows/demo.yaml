@@ -18,7 +18,8 @@ jobs:
           envsubst < mkdeb/substvars.in >> substvars
           envsubst < version >> /tmp/version.out
           sed -i 's/export//g' /tmp/version.out
-          cat /tmp/version.out >> $GITHUB_ENV
+          echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
+          echo "lpkgdemo_revision = ${lpkgdemo_version}"
       - name: upgrade lpkg-demo
         uses: actions/checkout@v3
         with: 
@@ -36,7 +37,7 @@ jobs:
           dch --distribution unstable -v ${lpkgdemo_revision} -M "upgrade to ${lpkgdemo_revision}"
           cat debian/changelog
           git add debian
-          git commit -m "action bot: upgrade to ${lpkgdemo_version}"
+          git commit -m "actions: upgrade to ${lpkgdemo_version}"
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
         with:
