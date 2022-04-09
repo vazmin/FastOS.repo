@@ -2,7 +2,7 @@ name: Demo Action
 on: 
   push:
     tags:        
-      - D_**
+      - DEMO_**
 jobs:
   version-set:
     runs-on: ubuntu-18.04
@@ -12,7 +12,7 @@ jobs:
           git config --global user.name "$GITHUB_ACTOR"
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
           sudo apt-get update
-          sudo apt-get install devscripts -y
+          sudo apt-get install debhelper devscripts -y
       - name: Checkout FastOS.repo
         uses: actions/checkout@v3
       - name: Gen substvars and Environment variable
@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update lpkg-demo substars & changelog
-        if: ${{ env.lpkgdemoU == 'Y' }}
+        if: ${{ env.lpkgdemo == 'Y' }}
         run: |
           awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
           cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
@@ -45,11 +45,53 @@ jobs:
           git commit -m "actions: upgrade to ${{env.lpkgdemo_version}}"
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
-        if: ${{ env.lpkgdemoP == 'Y' }}
+        if: ${{ env.lpkgdemo == 'Y' }}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: main
           directory: lpkg-demo
           repository: vazmin/lpkg-demo
-          
+      - name: Build lpkg-demo
+        run: |
+          cd lpkg-demo
+          dpkg-buildpackage -b --no-sign
+      - name: Upload artifact 
+        uses: actions/upload-artifact@v3
+        with:
+          name: lpkg-demo
+          path: *.[d]deb
+  deploy-to-repo:
+    runs-on: ubuntu-18.04
+    needs: [version-set]
+    steps:
+      - name: Checkout FastOS.repo
+        uses: actions/checkout@v3
+      - name: Parse git tag to ENV
+        run: |
+          echo "parse $GITHUB_REF_NAME"
+          for x in $(IFS='_';echo $GITHUB_REF_NAME); do echo "$x=Y" >> $GITHUB_ENV; done
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: lpkg-demo
+          path: deb
+      - name: Display structure of downloaded files
+        run: |
+          ls -R deb
+      - name: Install SSH key
+        uses: vazmin/ssh-key-action@v2
+        with:
+          key: ${{ secrets.REPO_SSH_KEY }}
+          name: id_rsa
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Add to Repo
+        run: |
+          EXP=/tmp/reprepro.exp
+          scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
+          REMOTE_DEB_DIR=/tmp/$(echo $RANDOM | md5sum | head -c 10)
+          rsync -avz deb/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR
+          ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
+           "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
+           -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
 
