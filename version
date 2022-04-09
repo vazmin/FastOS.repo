@@ -14,4 +14,4 @@ export faststore_revision=${faststore_version}-1
 export fastcfs_revision=${fastcfs_version}-1
 
 export lpkgdemo_version=0.0.2
-export lpkgdemo_revision=${lpkgdemo_version}-1
+export lpkgdemo_revision=${lpkgdemo_version}-2
