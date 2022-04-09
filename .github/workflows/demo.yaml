@@ -85,8 +85,7 @@ jobs:
         with:
           key: ${{ secrets.REPO_SSH_KEY }}
           name: id_rsa
-      - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Add to Repo
         run: |
           EXP=/tmp/reprepro.exp
