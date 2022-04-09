@@ -29,15 +29,14 @@ jobs:
           fetch-depth: 0 
       - name: Update lpkg-demo substars & changelog
         run: |
-          # . version
           awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
           cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
           cat lpkg-demo/debian/substvars
           cd lpkg-demo
-          dch --distribution unstable -v ${env.lpkgdemo_revision} -M "upgrade to ${env.lpkgdemo_revision}"
+          dch --distribution unstable -v ${{env.lpkgdemo_revision}} -M "upgrade to ${{env.lpkgdemo_revision}}"
           cat debian/changelog
           git add debian
-          git commit -m "actions: upgrade to ${env.lpkgdemo_version}"
+          git commit -m "actions: upgrade to ${{env.lpkgdemo_version}}"
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
         with:
