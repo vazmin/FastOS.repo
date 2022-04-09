@@ -59,7 +59,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: lpkg-demo
-          path: *.[d]deb
+          path: |
+            *.deb
+            *.ddeb
   deploy-to-repo:
     runs-on: ubuntu-18.04
     needs: [version-set]
