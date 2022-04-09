@@ -90,9 +90,9 @@ jobs:
         run: |
           EXP=/tmp/reprepro.exp
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
-          REMOTE_DEB_DIR=/tmp/$(echo $RANDOM | md5sum | head -c 10)
+          REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
           rsync -avz deb/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
           ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
            "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
-           -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}"
+           -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
 
