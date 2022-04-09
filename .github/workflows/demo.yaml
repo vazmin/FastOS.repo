@@ -1,5 +1,8 @@
 name: Demo Action
-on: [push]
+on: 
+  push:
+    tags:        
+      - D_**
 jobs:
   version-set:
     runs-on: ubuntu-18.04
@@ -12,13 +15,17 @@ jobs:
           sudo apt-get install devscripts -y
       - name: Checkout FastOS.repo
         uses: actions/checkout@v3
-      - name: gen substvars
+      - name: Gen substvars and Environment variable
         run: |
           . version
           envsubst < mkdeb/substvars.in >> substvars
           envsubst < version >> /tmp/version.out
           sed -i 's/export //g' /tmp/version.out
           echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
+      - name: Parse git tag to ENV
+        run: |
+          echo "parse $GITHUB_REF_NAME"
+          for x in $(IFS='_';echo $GITHUB_REF_NAME); do echo "$x=Y" >> $GITHUB_ENV; done
       - name: Checkout lpkg-demo
         uses: actions/checkout@v3
         with: 
@@ -28,17 +35,17 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update lpkg-demo substars & changelog
+        if: ${{ env.lpkgdemoU == 'Y' }}
         run: |
           awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
           cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
-          cat lpkg-demo/debian/substvars
           cd lpkg-demo
           dch --distribution unstable -v ${{env.lpkgdemo_revision}} -M "upgrade to ${{env.lpkgdemo_revision}}"
-          cat debian/changelog
           git add debian
           git commit -m "actions: upgrade to ${{env.lpkgdemo_version}}"
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
+        if: ${{ env.lpkgdemoP == 'Y' }}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: main
