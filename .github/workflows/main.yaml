@@ -2,144 +2,370 @@ name: FastCFS Build Action
 on: 
   push:
     tags:        
-      - R_**
+      - PKG_**
 jobs:
   build-mudules:
     runs-on: ubuntu-18.04
+    env:
+      libfastcommon_dir: modules/libfastcommon/source
+      libfastcommon_repo: happyfish100/libfastcommon
+      libserverframe_dir: modules/libserverframe/source
+      libserverframe_repo: happyfish100/libserverframe
+      libdiskallocator_dir: modules/libdiskallocator/source
+      libdiskallocator_repo: happyfish100/libdiskallocator
+      fastcfs_auth_client_dir: modules/fastcfs-auth-client/source
+      fastdir_client_dir: modules/fastdir-client/source
+      libfdirstorage_dir: modules/libfdirstorage/source
+      libfdirstorage_repo: vazmin/libfdirstorage-mirror
+      fastdir_dir: modules/fastdir/source
+      fastdir_repo: happyfish100/fastDIR
+      faststore_dir: modules/faststore/source
+      faststore_repo: happyfish100/faststore
+      fastcfs_dir: modules/fastcfs/source
+      fastcfs_repo: happyfish100/FastCFS
+      dist: dist
     steps:
       - name: set up build env
         run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
           curl http://www.fastken.com/aptrepo/packages.fastos.pub | sudo apt-key add
           sudo sh -c 'echo "deb http://www.fastken.com/aptrepo/fastos/ fastos main" >> /etc/apt/sources.list'
           sudo apt-get update
-          sudo apt-get install build-essential debhelper libfuse3-dev libaio-dev -y
-      - name: checkout libfastcommon
+          sudo apt-get install build-essential devscripts debhelper libfuse3-dev libaio-dev -y
+      - name: Checkout FastOS.repo
+        uses: actions/checkout@v3
+      - name: Gen substvars and Environment variable
+        run: |
+          . version
+          envsubst < mkdeb/substvars.in >> substvars
+          envsubst < version >> /tmp/version.out
+          sed -i 's/export //g' /tmp/version.out
+          echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
+          mkdir -p ${{env.dist}}
+      - name: Parse Git tag to ENV
+        run: |
+          echo "parse $GITHUB_REF_NAME"
+          for x in $(IFS='_';echo $GITHUB_REF_NAME); do echo "$x=Y" >> $GITHUB_ENV; done
+      # Module libfastcommon libfc
+      - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/libfastcommon
+          repository: ${{env.libfastcommon_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/libfastcommon/source
-      - name: build libfastcommon
+          path: ${{env.libfastcommon_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfastcommon substars & changelog
+        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/libfastcommon/source
+          ./aio/changlelog_substars.sh ${{env.libfastcommon_dir}} ${{env.libfastcommon_revision}}
+      - name: Build libfastcommon
+        run: |
+          cd ${{env.libfastcommon_dir}}
           dpkg-buildpackage -b --no-sign
-      - name: install libfastcommon
+      - name: Install libfastcommon
         run: |
-          for f in modules/libfastcommon/*.deb; do sudo dpkg --force-all -i $f; done;
-
-      - name: checkout libserverframe
+          for f in ${{env.libfastcommon_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy libfastcommon .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
+      # Module libserverframe libsf
+      - name: Checkout libserverframe
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/libserverframe
+          repository: ${env.libserverframe_repo}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/libserverframe/source
-      - name: build libserverframe
+          path: ${{env.libserverframe_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libserverframe substars & changelog
+        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/libserverframe/source
+          ./aio/changlelog_substars.sh ${{env.libserverframe_dir}} ${{env.libserverframe_revision}}
+      - name: Build libserverframe
+        run: |
+          cd ${{env.libserverframe_dir}}
           dpkg-buildpackage -b --no-sign
-      - name: install libserverframe
+      - name: Install libserverframe
         run: |
-          for f in modules/libserverframe/*.deb; do sudo dpkg --force-all -i $f; done;
-
-      - name: checkout libdiskallocator
+          for f in ${{env.libserverframe_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy libserverframe .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
+      # Module libdiskallocator libda
+      - name: Checkout libdiskallocator
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/libdiskallocator
+          repository: ${{env.libdiskallocator_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/libdiskallocator/source
-      - name: build libdiskallocator
+          path: ${{env.libdiskallocator_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libdiskallocator substars & changelog
+        if: ${{ (env.all == 'Y' or env.libda == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/libdiskallocator/source
+          ./aio/changlelog_substars.sh ${{env.libdiskallocator_dir}} ${{env.libdiskallocator_revision}}
+      - name: Build libdiskallocator
+        run: |
+          cd ${{env.libdiskallocator_dir}}
           dpkg-buildpackage -b --no-sign
-      - name: install libdiskallocator
+      - name: Install libdiskallocator
         run: |
-          for f in modules/libdiskallocator/*.deb; do sudo dpkg --force-all -i $f; done;
-
-      - name: checkout fastcfs-auth-client
+          for f in ${{env.libdiskallocator_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy libdiskallocator .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.libda == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastcfs-auth-client fcfsac
+      - name: Checkout fastcfs-auth-client
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/FastCFS
+          repository: ${{fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/fastcfs-auth-client/source
-      - name: build fastcfs-auth-client
+          path: ${{env.fastcfs_auth_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS Auth Client substars & changelog
+        if: ${{ (env.all == 'Y' or env.fcfsac == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/fastcfs-auth-client/source
+          ./aio/changlelog_substars.sh ${{env.fastcfs_auth_client_dir}} ${{env.fastcfs_revision}}
+      - name: Build fastcfs-auth-client
+        run: |
+          cd ${{env.fastcfs_auth_client_dir}}
           dpkg-buildpackage -b --no-sign -Ppkg.auth.client
-      - name: install fastcfs-auth-client
+      - name: Install fastcfs-auth-client
         run: |
-          for f in modules/fastcfs-auth-client/*.deb; do sudo dpkg --force-all -i $f; done;
-      
-      - name: checkout fastdir-client
+          for f in ${{env.fastcfs_auth_client_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy fastcfs-auth-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.fcfsac == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.fastcfs_auth_client_dir}}/../*.*deb  ${{env.dist}}
+      - name: Checkout fastdir-client
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/fastDIR
+          repository: ${{env.fastdir_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/fastdir-client/source
-      - name: build fastdir-client
+          path: ${{env.fastdir_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update fastDIR Client substars & changelog
+        if: ${{ (env.all == 'Y' or env.fdirc == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/fastdir-client/source
+          ./aio/changlelog_substars.sh ${{env.fastdir_client_dir}} ${{env.fastdir_revision}}
+      - name: Build fastdir-client
+        run: |
+          cd ${{env.fastdir_client_dir}}
           dpkg-buildpackage -b --no-sign -Ppkg.client
-      - name: install fastdir-client
+      - name: Install fastdir-client
         run: |
-          for f in modules/fastdir-client/*.deb; do sudo dpkg --force-all -i $f; done;
-      
-      - name: checkout libfdirstorage
+          for f in ${{env.fastdir_client_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy fastdir-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.fdirc == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.fastdir_client_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfdirstorage libfdirs
+      - name: Checkout libfdirstorage
         uses: actions/checkout@v3
         with: 
-          repository: vazmin/libfdirstorage-mirror
+          repository: ${{env.libfdirstorage_repo}}
           token: ${{secrets.GH_PAT}}
-          path: modules/libfdirstorage/source
-      - name: build libfdirstorage
+          path: ${{env.libfdirstorage_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfdirstorage substars & changelog
+        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/libfdirstorage/source
+          ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
+      - name: Build libfdirstorage
+        run: |
+          cd ${{env.libfdirstorage_dir}}
           dpkg-buildpackage -b --no-sign
-        post: rm -rf modules/libfdirstorage/source
-      - name: install libfdirstorage
+        post: rm -rf ${{env.libfdirstorage_dir}}
+      - name: Install libfdirstorage
         run: |
-          for f in modules/libfdirstorage/*.deb; do sudo dpkg --force-all -i $f; done;
-
-      - name: checkout fastdir
+          for f in ${{env.libfdirstorage_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy libfdirstorage .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastdir fdir
+      - name: Checkout fastdir
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/fastDIR
+          repository: ${{env.fastdir_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/fastdir/source
-      - name: build fastdir
+          path: ${{env.fastdir_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update fastDIR substars & changelog
+        if: ${{ (env.all == 'Y' or env.fdir == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/fastdir/source
+          ./aio/changlelog_substars.sh ${{env.fastdir_dir}} ${{env.fastdir_revision}}
+
+      - name: Build fastdir
+        run: |
+          cd ${{env.fastdir_dir}}
           dpkg-buildpackage -b --no-sign -Ppkg.server
-      - name: install fastdir
+      - name: Install fastdir
         run: |
-          for f in modules/fastdir/*.deb; do sudo dpkg --force-all -i $f; done;
-
-      - name: checkout faststore
+          for f in ${{env.fastdir_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy fastdir .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.fdir == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.fastdir_dir}}/../*.*deb  ${{env.dist}}
+      # Module faststore fstore
+      - name: Checkout faststore
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/faststore
+          repository: ${{env.faststore_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/faststore/source
-      - name: build faststore
+          path: ${{env.faststore_dir}}
+           persist-credentials: false
+          fetch-depth: 0 
+      - name: Update faststore substars & changelog
+        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/faststore/source
+          ./aio/changlelog_substars.sh ${{env.faststore_dir}} ${{env.faststore_revision}}
+      - name: Build faststore
+        run: |
+          cd ${{env.faststore_dir}}
           dpkg-buildpackage -b --no-sign
-      - name: install faststore
+      - name: Install faststore
         run: |
-          for f in modules/faststore/*.deb; do sudo dpkg --force-all -i $f; done;
-      
-      - name: checkout fastcfs
+          for f in ${{env.faststore_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy faststore .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.faststore_dir}}/../*.*deb  ${{env.dist}}
+      # Module FastCFS fcfs
+      - name: Checkout fastcfs
         uses: actions/checkout@v3
         with: 
-          repository: happyfish100/fastcfs
+          repository: ${{env.fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: modules/fastcfs/source
-      - name: build fastcfs
+          path: ${{env.fastcfs_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS substars & changelog
+        if: ${{ (env.all == 'Y' or env.fcfs == 'Y') && env.C == 'Y'}}
         run: |
-          cd modules/fastcfs/source
-          dpkg-buildpackage -b --no-sign -Ppkg.fastcfs.core
+          ./aio/changlelog_substars.sh ${{env.fastcfs_dir}} ${{env.fastcfs_revision}}
 
-      - name: upload artifact 
+      - name: Build fastcfs
+        run: |
+          cd ${{env.fastcfs_dir}}
+          dpkg-buildpackage -b --no-sign -Ppkg.fastcfs.core
+      - name: Copy fastcfs .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' or env.fcfs == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
+
+      - name: Upload artifact 
         uses: actions/upload-artifact@v3
         with:
-          name: FastOS-DEB
-          path: modules/*/*.deb
-      
+          name: FastOS-debian-pkg
+          path: |
+            modules/*/*.deb
+            modules/*/*.ddeb
+
+      # Push Steps Start
+      - name: Push libfastcommon changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfastcommon_dir}}
+          repository: ${{env.libfastcommon_repo}}
+      - name: Push libserverframe changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libserverframe_dir}}
+          repository: ${{env.libserverframe_repo}}
+      - name: Push libdiskallocator changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.libda == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: main
+          directory: ${{env.libdiskallocator_dir}}
+          repository: ${{env.libdiskallocator_repo}}
+      - name: Push libfdirstorage changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfdirstorage_dir}}
+          repository: ${{env.libfdirstorage_repo}}
+      - name: Push fastdir changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.fdir == 'Y' or env.fdirc == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.fastdir_dir}}
+          repository: ${{env.fastdir_repo}}
+      - name: Push faststore changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.fastcfs_dir}}
+          repository: ${{env.fastcfs_repo}}
+      - name: Push fastcfs changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' or env.fcfs == 'Y' or env.fcfsac == 'Y') && env.P == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.fastcfs_dir}}
+          repository: ${{env.fastcfs_repo}}
+      # Push Steps End
+
+      # Deploy to Repo Start
+      - name: Install SSH key
+        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        uses: vazmin/ssh-key-action@v2
+        with:
+          key: ${{ secrets.REPO_SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Add to Repo
+        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        run: |
+          EXP=/tmp/reprepro.exp
+          scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
+          REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
+          # send deb to remote
+          rsync -avz ${{env.dist}}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
+          # add to reprepro
+          ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
+           "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
+           -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
+      # Deploy to Repo End
+      # Release start
+      - name: zip dist files
+        run: |
+          zip --junk-paths FastOS-debain ${{env.dist}}
+      - name: Create Release
+        id: create_release
+        if: ${{env.R == 'Y' }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        if: ${{env.R == 'Y' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ./FastOS-debain.zip
+          asset_name: FastOS-debain.zip
+          asset_content_type: application/zip
+      # Release end
