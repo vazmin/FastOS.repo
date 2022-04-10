@@ -216,7 +216,7 @@ jobs:
           repository: ${{env.faststore_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
           path: ${{env.faststore_dir}}
-           persist-credentials: false
+          persist-credentials: false
           fetch-depth: 0 
       - name: Update faststore substars & changelog
         if: ${{ (env.all == 'Y' or env.fstore == 'Y') && env.C == 'Y'}}
