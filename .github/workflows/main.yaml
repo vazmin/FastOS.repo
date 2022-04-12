@@ -178,9 +178,6 @@ jobs:
         run: |
           cd ${{env.libfdirstorage_dir}}
           dpkg-buildpackage -b --no-sign
-      - name: Delete libfdirstorage source
-        if: always()
-        run: rm -rf ${{env.libfdirstorage_dir}}
       - name: Install libfdirstorage
         run: |
           for f in ${{env.libfdirstorage_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
@@ -366,3 +363,7 @@ jobs:
           )
           hub release create "${assets[@]}" -m "$GITHUB_REF_NAME $MESSAGE" "$GITHUB_REF_NAME"
       # Release end
+      # Post
+      - name: Delete libfdirstorage source
+        if: always()
+        run: rm -rf ${{env.libfdirstorage_dir}}
