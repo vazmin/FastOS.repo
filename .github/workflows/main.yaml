@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libfastcommon substars & changelog
-        if: ${{ env.all == 'Y' or env.libfc == 'Y' }}
+        if: ${{ env.all == 'Y' || env.libfc == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libfastcommon_dir}} ${{env.libfastcommon_revision}}
       - name: Build libfastcommon
@@ -68,7 +68,7 @@ jobs:
         run: |
           for f in ${{env.libfastcommon_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy libfastcommon .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.libfc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
       # Module libserverframe libsf
       - name: Checkout libserverframe
@@ -80,7 +80,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libserverframe substars & changelog
-        if: ${{ env.all == 'Y' or env.libsf == 'Y' }}
+        if: ${{ env.all == 'Y' || env.libsf == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libserverframe_dir}} ${{env.libserverframe_revision}}
       - name: Build libserverframe
@@ -91,7 +91,7 @@ jobs:
         run: |
           for f in ${{env.libserverframe_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy libserverframe .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.libsf == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
       # Module libdiskallocator libda
       - name: Checkout libdiskallocator
@@ -103,7 +103,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libdiskallocator substars & changelog
-        if: ${{ env.all == 'Y' or env.libda == 'Y' }}
+        if: ${{ env.all == 'Y' || env.libda == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libdiskallocator_dir}} ${{env.libdiskallocator_revision}}
       - name: Build libdiskallocator
@@ -114,7 +114,7 @@ jobs:
         run: |
           for f in ${{env.libdiskallocator_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy libdiskallocator .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.libda == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.libda == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
       # Module fastcfs-auth-client fcfsac
       - name: Checkout fastcfs-auth-client
@@ -126,7 +126,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update FastCFS Auth Client substars & changelog
-        if: ${{ env.all == 'Y' or env.fcfsac == 'Y' }}
+        if: ${{ env.all == 'Y' || env.fcfsac == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastcfs_auth_client_dir}} ${{env.fastcfs_revision}}
       - name: Build fastcfs-auth-client
@@ -137,7 +137,7 @@ jobs:
         run: |
           for f in ${{env.fastcfs_auth_client_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy fastcfs-auth-client .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.fcfsac == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.fcfsac == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_auth_client_dir}}/../*.*deb  ${{env.dist}}
       - name: Checkout fastdir-client
         uses: actions/checkout@v3
@@ -148,7 +148,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update fastDIR Client substars & changelog
-        if: ${{ env.all == 'Y' or env.fdirc == 'Y' }}
+        if: ${{ env.all == 'Y' || env.fdirc == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastdir_client_dir}} ${{env.fastdir_revision}}
       - name: Build fastdir-client
@@ -159,7 +159,7 @@ jobs:
         run: |
           for f in ${{env.fastdir_client_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy fastdir-client .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.fdirc == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.fdirc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastdir_client_dir}}/../*.*deb  ${{env.dist}}
       # Module libfdirstorage libfdirs
       - name: Checkout libfdirstorage
@@ -171,7 +171,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libfdirstorage substars & changelog
-        if: ${{ env.all == 'Y' or env.libfdirs == 'Y' }}
+        if: ${{ env.all == 'Y' || env.libfdirs == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
       - name: Build libfdirstorage
@@ -183,7 +183,7 @@ jobs:
         run: |
           for f in ${{env.libfdirstorage_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy libfdirstorage .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
       # Module fastdir fdir
       - name: Checkout fastdir
@@ -195,7 +195,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update fastDIR substars & changelog
-        if: ${{ env.all == 'Y' or env.fdir == 'Y' }}
+        if: ${{ env.all == 'Y' || env.fdir == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastdir_dir}} ${{env.fastdir_revision}}
 
@@ -207,7 +207,7 @@ jobs:
         run: |
           for f in ${{env.fastdir_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy fastdir .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.fdir == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.fdir == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastdir_dir}}/../*.*deb  ${{env.dist}}
       # Module faststore fstore
       - name: Checkout faststore
@@ -219,7 +219,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update faststore substars & changelog
-        if: ${{ env.all == 'Y' or env.fstore == 'Y' }}
+        if: ${{ env.all == 'Y' || env.fstore == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.faststore_dir}} ${{env.faststore_revision}}
       - name: Build faststore
@@ -230,7 +230,7 @@ jobs:
         run: |
           for f in ${{env.faststore_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy faststore .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.fstore == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.faststore_dir}}/../*.*deb  ${{env.dist}}
       # Module FastCFS fcfs
       - name: Checkout fastcfs
@@ -242,7 +242,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update FastCFS substars & changelog
-        if: ${{ env.all == 'Y' or env.fcfs == 'Y' }}
+        if: ${{ env.all == 'Y' || env.fcfs == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastcfs_dir}} ${{env.fastcfs_revision}}
 
@@ -251,7 +251,7 @@ jobs:
           cd ${{env.fastcfs_dir}}
           dpkg-buildpackage -b --no-sign -Ppkg.fastcfs.core
       - name: Copy fastcfs .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' or env.fcfs == 'Y') && (env.D == 'Y' or env.R == 'Y')}}
+        if: ${{ (env.all == 'Y' || env.fcfs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
 
       - name: Upload artifact 
@@ -265,7 +265,7 @@ jobs:
       # Push Steps Start
       - name: Push libfastcommon changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.libfc == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
@@ -273,7 +273,7 @@ jobs:
           repository: ${{env.libfastcommon_repo}}
       - name: Push libserverframe changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.libsf == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
@@ -281,7 +281,7 @@ jobs:
           repository: ${{env.libserverframe_repo}}
       - name: Push libdiskallocator changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.libda == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.libda == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: main
@@ -289,7 +289,7 @@ jobs:
           repository: ${{env.libdiskallocator_repo}}
       - name: Push libfdirstorage changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
@@ -297,7 +297,7 @@ jobs:
           repository: ${{env.libfdirstorage_repo}}
       - name: Push fastdir changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.fdir == 'Y' or env.fdirc == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.fdir == 'Y' || env.fdirc == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
@@ -305,7 +305,7 @@ jobs:
           repository: ${{env.fastdir_repo}}
       - name: Push faststore changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.fstore == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
@@ -313,7 +313,7 @@ jobs:
           repository: ${{env.fastcfs_repo}}
       - name: Push fastcfs changes
         uses: vazmin/github-push-action@master
-        if: ${{ (env.all == 'Y' or env.fcfs == 'Y' or env.fcfsac == 'Y') && env.P == 'Y'}}
+        if: ${{ (env.all == 'Y' || env.fcfs == 'Y' || env.fcfsac == 'Y') && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
