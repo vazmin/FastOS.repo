@@ -18,7 +18,7 @@ MODULE_TMP_SUBSTVARS=substvars-$(echo $RANDOM | md5sum | head -c 12)
 
 ORIGIN_SUBSTVARS=$MODULE_BASE_DIR/debian/substvars
 if [ -f ${ORIGIN_SUBSTVARS} ]; then
-    awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}'  substvars > /tmp/$MODULE_TMP_SUBSTVARS
+    awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' $ORIGIN_SUBSTVARS > /tmp/$MODULE_TMP_SUBSTVARS
     cp /tmp/$MODULE_TMP_SUBSTVARS $ORIGIN_SUBSTVARS
 fi
 cd $MODULE_BASE_DIR
