@@ -7,8 +7,8 @@ jobs:
   version-set:
     runs-on: ubuntu-18.04
     env: 
-      lpkgdemo_dir: vazmin/lpkg-demo
-      lpkgdemo_repo: lpkg-demo
+      lpkgdemo_dir: lpkg-demo
+      lpkgdemo_repo: vazmin/lpkg-demo
     steps:
       - name: Set up run env
         run: |
