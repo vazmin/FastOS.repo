@@ -6,6 +6,9 @@ on:
 jobs:
   version-set:
     runs-on: ubuntu-18.04
+    env: 
+      lpkgdemo_dir: vazmin/lpkg-demo
+      lpkgdemo_repo: lpkg-demo
     steps:
       - name: Set up run env
         run: |
@@ -29,31 +32,26 @@ jobs:
       - name: Checkout lpkg-demo
         uses: actions/checkout@v3
         with: 
-          repository: vazmin/lpkg-demo
+          repository: ${{env.lpkgdemo_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
-          path: lpkg-demo
+          path: ${{env.lpkgdemo_dir}}
           persist-credentials: false
           fetch-depth: 0 
       - name: Update lpkg-demo substars & changelog
-        if: ${{ env.lpkgdemo == 'Y' && env.C == 'Y'}}
+        if: ${{ env.LPKG == 'Y' && env.C == 'Y'}}
         run: |
-          awk -F'=' 'FNR==NR {a[$1] = $2; next} $1 in a {print $1"="$2}' lpkg-demo/debian/substvars substvars > /tmp/lpkg-demo.vars
-          cp /tmp/lpkg-demo.vars lpkg-demo/debian/substvars
-          cd lpkg-demo
-          dch --distribution unstable -v ${{env.lpkgdemo_revision}} -M "upgrade to ${{env.lpkgdemo_revision}}"
-          git add debian
-          git commit -m "actions: upgrade to ${{env.lpkgdemo_version}}"
+          ./aio/changlelog_substars.sh ${{env.lpkgdemo_dir}} ${{env.lpkgdemo_revision}}
       - name: Push lpkg-demo changes
         uses: vazmin/github-push-action@master
-        if: ${{ env.lpkgdemo == 'Y' && env.P == 'Y'}}
+        if: ${{ env.LPKG == 'Y' && env.P == 'Y'}}
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: main
-          directory: lpkg-demo
-          repository: vazmin/lpkg-demo
+          directory: ${{env.lpkgdemo_dir}}
+          repository: ${{env.lpkgdemo_repo}}
       - name: Build lpkg-demo
         run: |
-          cd lpkg-demo
+          cd ${{env.lpkgdemo_dir}}
           dpkg-buildpackage -b --no-sign
       - name: Upload artifact 
         uses: actions/upload-artifact@v3
@@ -68,6 +66,13 @@ jobs:
     steps:
       - name: Checkout FastOS.repo
         uses: actions/checkout@v3
+      - name: Gen substvars and Environment variable
+        run: |
+          . version
+          envsubst < mkdeb/substvars.in >> substvars
+          envsubst < version >> /tmp/version.out
+          sed -i 's/export //g' /tmp/version.out
+          echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
       - name: Parse git tag to ENV
         run: |
           echo "parse $GITHUB_REF_NAME"
@@ -82,14 +87,14 @@ jobs:
           ls -R deb
           zip --junk-paths lpkg-demo deb/*
       - name: Install SSH key
-        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        if: ${{ env.LPKG == 'Y' && env.D == 'Y' }}
         uses: vazmin/ssh-key-action@v2
         with:
           key: ${{ secrets.REPO_SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Add to Repo
-        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        if: ${{ env.LPKG == 'Y' && env.D == 'Y' }}
         run: |
           EXP=/tmp/reprepro.exp
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
@@ -100,24 +105,38 @@ jobs:
            -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
       - name: Create Release
         id: create_release
-        if: ${{ env.lpkgdemo == 'Y' && env.R == 'Y' }}
-        uses: actions/create-release@v1
+        if: ${{ env.LPKG == 'Y' && env.R == 'Y' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        if: ${{ env.lpkgdemo == 'Y' && env.R == 'Y' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  
-          asset_path: ./lpkg-demo.zip
-          asset_name: lpkg-demo.zip
-          asset_content_type: application/zip
+        run: |
+          set -x
+          assets=()
+          for asset in ./lpkg-demo/*.*deb; do
+            assets+=("-a" "$asset")
+          done
+          assets+=("a" "./lpkg-demo.zip")
+          hub release create "${assets[@]}" -m "${{GITHUB_REF_NAME}} $(cat /tmp/version.out)" "${{GITHUB_REF_NAME}}"
+          
+      # - name: Create Release
+      #   id: create_release
+      #   if: ${{ env.LPKG == 'Y' && env.R == 'Y' }}
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: Release ${{ github.ref }}
+      #     draft: false
+      #     prerelease: false
+      # - name: Upload Release Asset
+      #   id: upload-release-asset 
+      #   if: ${{ env.LPKG == 'Y' && env.R == 'Y' }}
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}  
+      #     asset_path: ./lpkg-demo.zip
+      #     asset_name: lpkg-demo.zip
+      #     asset_content_type: application/zip
 
