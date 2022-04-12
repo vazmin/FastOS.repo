@@ -69,7 +69,7 @@ jobs:
           for f in ${{env.libfastcommon_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
       - name: Copy libfastcommon .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libfc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
-        run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
+        run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       # Module libserverframe libsf
       - name: Checkout libserverframe
         uses: actions/checkout@v3
