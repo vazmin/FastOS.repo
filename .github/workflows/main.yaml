@@ -344,7 +344,7 @@ jobs:
       # Release start
       - name: zip dist files
         run: |
-          zip --junk-paths FastOS-debain ${{env.dist}}
+          zip FastOS-debain ${{env.dist}}
       - name: Create Release
         id: create_release
         if: ${{env.R == 'Y' }}
