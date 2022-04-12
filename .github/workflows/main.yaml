@@ -74,7 +74,7 @@ jobs:
       - name: Checkout libserverframe
         uses: actions/checkout@v3
         with: 
-          repository: ${env.libserverframe_repo}
+          repository: ${{env.libserverframe_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
           path: ${{env.libserverframe_dir}}
           persist-credentials: false
