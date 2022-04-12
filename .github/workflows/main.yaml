@@ -120,7 +120,7 @@ jobs:
       - name: Checkout fastcfs-auth-client
         uses: actions/checkout@v3
         with: 
-          repository: ${{fastcfs_repo}}
+          repository: ${{env.fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
           path: ${{env.fastcfs_auth_client_dir}}
           persist-credentials: false
@@ -178,7 +178,9 @@ jobs:
         run: |
           cd ${{env.libfdirstorage_dir}}
           dpkg-buildpackage -b --no-sign
-        post: rm -rf ${{env.libfdirstorage_dir}}
+      - name: Delete libfdirstorage source
+        if: always()
+        run: rm -rf ${{env.libfdirstorage_dir}}
       - name: Install libfdirstorage
         run: |
           for f in ${{env.libfdirstorage_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
