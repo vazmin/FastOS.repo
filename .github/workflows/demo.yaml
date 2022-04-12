@@ -115,6 +115,12 @@ jobs:
             assets+=("-a" "$asset")
           done
           assets+=("-a" "./lpkg-demo.zip")
-          hub release create "${assets[@]}" -m "$GITHUB_REF_NAME $(cat /tmp/version.out)" "$GITHUB_REF_NAME"
+          MESSAGE=$(cat <<-END
+              Release $GITHUB_REF_NAME
+              
+              $(cat /tmp/version.out)
+          END
+          )
+          hub release create "${assets[@]}" -m "$GITHUB_REF_NAME $MESSAGE" "$GITHUB_REF_NAME"
           
 
