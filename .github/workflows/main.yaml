@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libfastcommon substars & changelog
-        if: ${{ (env.all == 'Y' or env.libfc == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.libfc == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libfastcommon_dir}} ${{env.libfastcommon_revision}}
       - name: Build libfastcommon
@@ -80,7 +80,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libserverframe substars & changelog
-        if: ${{ (env.all == 'Y' or env.libsf == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.libsf == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libserverframe_dir}} ${{env.libserverframe_revision}}
       - name: Build libserverframe
@@ -103,7 +103,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libdiskallocator substars & changelog
-        if: ${{ (env.all == 'Y' or env.libda == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.libda == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libdiskallocator_dir}} ${{env.libdiskallocator_revision}}
       - name: Build libdiskallocator
@@ -126,7 +126,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update FastCFS Auth Client substars & changelog
-        if: ${{ (env.all == 'Y' or env.fcfsac == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.fcfsac == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastcfs_auth_client_dir}} ${{env.fastcfs_revision}}
       - name: Build fastcfs-auth-client
@@ -148,7 +148,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update fastDIR Client substars & changelog
-        if: ${{ (env.all == 'Y' or env.fdirc == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.fdirc == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastdir_client_dir}} ${{env.fastdir_revision}}
       - name: Build fastdir-client
@@ -171,7 +171,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update libfdirstorage substars & changelog
-        if: ${{ (env.all == 'Y' or env.libfdirs == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.libfdirs == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
       - name: Build libfdirstorage
@@ -195,7 +195,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update fastDIR substars & changelog
-        if: ${{ (env.all == 'Y' or env.fdir == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.fdir == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastdir_dir}} ${{env.fastdir_revision}}
 
@@ -219,7 +219,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update faststore substars & changelog
-        if: ${{ (env.all == 'Y' or env.fstore == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.fstore == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.faststore_dir}} ${{env.faststore_revision}}
       - name: Build faststore
@@ -242,7 +242,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0 
       - name: Update FastCFS substars & changelog
-        if: ${{ (env.all == 'Y' or env.fcfs == 'Y') && env.C == 'Y'}}
+        if: ${{ env.all == 'Y' or env.fcfs == 'Y' }}
         run: |
           ./aio/changlelog_substars.sh ${{env.fastcfs_dir}} ${{env.fastcfs_revision}}
 
@@ -323,14 +323,14 @@ jobs:
 
       # Deploy to Repo Start
       - name: Install SSH key
-        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        if: ${{ env.D == 'Y' }}
         uses: vazmin/ssh-key-action@v2
         with:
           key: ${{ secrets.REPO_SSH_KEY }}
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Add to Repo
-        if: ${{ env.lpkgdemo == 'Y' && env.D == 'Y' }}
+        if: ${{ env.D == 'Y' }}
         run: |
           EXP=/tmp/reprepro.exp
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
@@ -349,23 +349,18 @@ jobs:
       - name: Create Release
         id: create_release
         if: ${{env.R == 'Y' }}
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        if: ${{env.R == 'Y' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  
-          asset_path: ./FastOS-debain.zip
-          asset_name: FastOS-debain.zip
-          asset_content_type: application/zip
+        run: |
+          set -x
+          assets=()
+          for asset in ${{env.dist}}/*.*deb; do
+            assets+=("-a" "$asset")
+          done
+          assets+=("-a" "./FastOS-debain.zip")
+          MESSAGE=$(cat <<-END
+              Release $GITHUB_REF_NAME
+              $(echo " ")
+              $(cat /tmp/version.out)
+          END
+          )
+          hub release create "${assets[@]}" -m "$GITHUB_REF_NAME $MESSAGE" "$GITHUB_REF_NAME"
       # Release end

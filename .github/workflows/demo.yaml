@@ -117,7 +117,7 @@ jobs:
           assets+=("-a" "./lpkg-demo.zip")
           MESSAGE=$(cat <<-END
               Release $GITHUB_REF_NAME
-              
+              $(echo " ")
               $(cat /tmp/version.out)
           END
           )
