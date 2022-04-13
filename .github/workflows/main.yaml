@@ -348,6 +348,8 @@ jobs:
       - name: Create Release
         id: create_release
         if: ${{env.R == 'Y' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -x
           assets=()
