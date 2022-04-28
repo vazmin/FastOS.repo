@@ -308,8 +308,8 @@ jobs:
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
-          directory: ${{env.fastcfs_dir}}
-          repository: ${{env.fastcfs_repo}}
+          directory: ${{env.faststore_dir}}
+          repository: ${{env.faststore_repo}}
       - name: Push fastcfs changes
         uses: vazmin/github-push-action@master
         if: ${{ (env.all == 'Y' || env.fcfs == 'Y' || env.fcfsac == 'Y') && env.P == 'Y'}}
