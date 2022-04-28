@@ -1,12 +1,12 @@
 
 
-export libfastcommon_version=1.0.56
-export libserverframe_version=1.1.13
-export libdiskallocator_version=1.0.2
-export libfdirstorage_version=1.0.2
-export fastdir_version=3.2.0
-export faststore_version=3.2.0
-export fastcfs_version=3.2.0
+export libfastcommon_version=1.0.57
+export libserverframe_version=1.1.14
+export libdiskallocator_version=1.0.3
+export libfdirstorage_version=1.0.3
+export fastdir_version=3.3.0
+export faststore_version=3.3.0
+export fastcfs_version=3.3.0
 export libfastcommon_revision=${libfastcommon_version}-1
 export libserverframe_revision=${libserverframe_version}-1
 export libdiskallocator_revision=${libdiskallocator_version}-1
