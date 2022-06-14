@@ -136,14 +136,22 @@ fdebug=$rpm-debuginfo-$version.$dist.rpm
 if [ -f $rpmdir/$fdebug ]; then
   dsize=`ls -l $rpmdir/$fdebug | awk '{print $5}'`
   if [ $? -eq 0 ] && [ $dsize -gt 10000 ]; then
-    $shell_path/addsign.exp $rpmdir/$fdebug $passwd
+    if [ $os_major_version -lt 8 ]; then
+      $shell_path/addsign.exp $rpmdir/$fdebug $passwd
+    else
+      rpm --addsign $rpmdir/$fdebug
+    fi
     files="$files $fdebug"
   fi
 fi
 
 file=$rpm-$version.$dist.rpm
 if [ -f $rpmdir/$file ]; then
-  $shell_path/addsign.exp $rpmdir/$file $passwd
+  if [ $os_major_version -lt 8 ]; then
+    $shell_path/addsign.exp $rpmdir/$file $passwd
+  else
+    rpm --addsign $rpmdir/$file
+  fi
   files="$files $file"
 fi
 
