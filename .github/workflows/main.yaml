@@ -13,6 +13,7 @@ jobs:
       libserverframe_repo: happyfish100/libserverframe
       libdiskallocator_dir: modules/libdiskallocator/source
       libdiskallocator_repo: happyfish100/libdiskallocator
+      fastcfs_vote_client_dir: modules/fastcfs-vote-client/source
       fastcfs_auth_client_dir: modules/fastcfs-auth-client/source
       fastdir_client_dir: modules/fastdir-client/source
       libfdirstorage_dir: modules/libfdirstorage/source
@@ -116,6 +117,29 @@ jobs:
       - name: Copy libdiskallocator .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libda == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastcfs-vote-client fcfsvc
+      - name: Checkout fastcfs-vote-client
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastcfs_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastcfs_vote_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS Vote Client substars & changelog
+        if: ${{ env.all == 'Y' || env.fcfsvc == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastcfs_vote_client_dir}} ${{env.fastcfs_revision}}
+      - name: Build fastcfs-vote-client
+        run: |
+          cd ${{env.fastcfs_vote_client_dir}}
+          dpkg-buildpackage -b --no-sign -Ppkg.vote.client
+      - name: Install fastcfs-auth-client
+        run: |
+          for f in ${{env.fastcfs_vote_client_dir}}/../*.deb; do sudo dpkg --force-all -i $f; done;
+      - name: Copy fastcfs-vote-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastcfs_vote_client_dir}}/../*.*deb  ${{env.dist}}
       # Module fastcfs-auth-client fcfsac
       - name: Checkout fastcfs-auth-client
         uses: actions/checkout@v3
@@ -139,6 +163,7 @@ jobs:
       - name: Copy fastcfs-auth-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsac == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_auth_client_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastdir-client fdirc
       - name: Checkout fastdir-client
         uses: actions/checkout@v3
         with: 
