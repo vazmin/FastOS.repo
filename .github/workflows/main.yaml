@@ -368,6 +368,7 @@ jobs:
       # Deploy to Repo End
       # Release start
       - name: zip dist files
+        if: ${{env.R == 'Y' }}
         run: |
           zip FastOS-debain ${{env.dist}}/*
       - name: Create Release
