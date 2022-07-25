@@ -347,7 +347,7 @@ jobs:
 
       # Deploy to Repo Start
       - name: Install SSH key
-        if: ${{ env.D == 'Y' }}
+        if: ${{ env.D == 'Y' || env.DD == 'Y' }}
         uses: vazmin/ssh-key-action@v2
         with:
           key: ${{ secrets.REPO_SSH_KEY }}
