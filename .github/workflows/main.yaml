@@ -33,7 +33,7 @@ jobs:
           curl http://www.fastken.com/aptrepo/packages.fastos.pub | sudo apt-key add
           sudo sh -c 'echo "deb http://www.fastken.com/aptrepo/fastos/ fastos main" >> /etc/apt/sources.list'
           sudo apt-get update
-          sudo apt-get install build-essential devscripts debhelper libfuse3-dev libaio-dev -y
+          sudo apt-get install build-essential devscripts debhelper libfuse3-dev libaio-dev rename -y
       - name: Checkout FastOS.repo
         uses: actions/checkout@v3
       - name: Gen substvars and Environment variable
@@ -373,7 +373,7 @@ jobs:
           REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
           mkdir -p ${REMOTE_DEB_DIR}
           cp ${{env.dist}}/*.ddeb ${REMOTE_DEB_DIR}
-          rename .ddeb .deb ${REMOTE_DEB_DIR}/*.ddeb 
+          rename 's/\.ddeb/\.deb/' ${REMOTE_DEB_DIR}/*.ddeb 
           # send deb to remote
           rsync -avz ${REMOTE_DEB_DIR}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
           # add to reprepro
