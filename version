@@ -12,7 +12,7 @@ export libserverframe_revision=${libserverframe_version}-1
 export libdiskallocator_revision=${libdiskallocator_version}-1
 export libfdirstorage_revision=${libfdirstorage_version}-1
 export fastdir_revision=${fastdir_version}-2
-export faststore_revision=${faststore_version}-1
+export faststore_revision=${faststore_version}-2
 export fastcfs_revision=${fastcfs_version}-2
 
 export lpkgdemo_version=0.0.2
