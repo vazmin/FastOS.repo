@@ -42,6 +42,14 @@ jobs:
           sudo apt-get install build-essential devscripts sbuild debhelper \
            libfuse3-dev libaio-dev rename -y
           sudo sbuild-adduser $USER
+      - name: Gen substvars and Environment variable
+        run: |
+          . version
+          envsubst < mkdeb/substvars.in >> substvars
+          envsubst < version >> /tmp/version.out
+          sed -i 's/export //g' /tmp/version.out
+          echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
+          mkdir -p ${{env.dist}}
       - name: Determine build architecture
         run: |
           if [ ${{ matrix.arch }} = "i386" ]; then
