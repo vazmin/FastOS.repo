@@ -5,7 +5,7 @@ on:
       - act-sbuild
 jobs:
   build-mudules:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         dist: [buster]
@@ -35,11 +35,14 @@ jobs:
         run: |
           git config --global user.name "vazmin"
           git config --global user.email "chwingwong@outlook.com"
-          sudo apt-get update
+          echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" | sudo tee -a "/etc/apt/sources.list.d/backports.list"
+          sudo apt-get update -yqq
           sudo apt-get install -yqq --no-install-recommends \
            build-essential devscripts \
            sbuild debhelper schroot debootstrap \
            rename
+          sudo apt-get install -yqq --no-install-recommends \
+           qemu-user-static -t bullseye-backports
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
         run: |

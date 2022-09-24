@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 if [ $# != 2 ]; then
     echo "Please use: setup_build.sh [dist] [arch]"
     exit 1
@@ -15,7 +16,7 @@ fi
 # Determine base apt repository URL based on type of distribution.
 case "$disttype" in
     ubuntu)
-        url=http://archive.ubuntu.com/ubuntu
+        url=http://azure.archive.ubuntu.com/ubuntu
         ;;
     debian)
         url=http://deb.debian.org/debian
