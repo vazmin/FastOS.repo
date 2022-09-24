@@ -30,6 +30,7 @@ jobs:
       fastcfs_repo: happyfish100/FastCFS
       dist: dist
     steps:
+      - uses: actions/checkout@v3
       - name: set up build env
         run: |
           git config --global user.name "vazmin"
@@ -70,7 +71,7 @@ jobs:
             --dist ${{ matrix.dist }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
-      - name: Upload artifact 
+      - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
         if: always()
         with:
