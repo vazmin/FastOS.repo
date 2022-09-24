@@ -62,10 +62,10 @@ jobs:
       #         BUILD_ARCH=amd64
       #     fi
       #     echo "BUILD_ARCH=${BUILD_ARCH}" >> $GITHUB_ENV
-      - name: Prepare sbuild environment
-        run: |
-          sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ matrix.arch }}
-          sudo schroot -l
+      # - name: Prepare sbuild environment
+      #   run: |
+      #     sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ matrix.arch }}
+      #     sudo schroot -l
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
