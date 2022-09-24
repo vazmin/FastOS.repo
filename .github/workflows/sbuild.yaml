@@ -39,7 +39,9 @@ jobs:
           sudo install -D -o root -g root -m 644 fastos-archive-keyring.gpg /usr/share/keyrings/fastos-archive-keyring.gpg
           sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/fastos-archive-keyring.gpg] http://www.fastken.com/aptrepo/fastos/ fastos main" > /etc/apt/sources.list.d/fastos.list'
           sudo apt-get update
-          sudo apt-get install build-essential devscripts sbuild debhelper \
+          sudo apt-get install build-essential devscripts \
+           sbuild debhelper \
+           qemu-user-static binfmt-support \
            libfuse3-dev libaio-dev rename -y
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
