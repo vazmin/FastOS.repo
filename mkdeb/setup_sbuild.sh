@@ -25,6 +25,13 @@ case "$disttype" in
         exit 1
 esac
 
+set +e
+schroot_name="${dist}-${arch}-sbuild"
+schroot_exists=$(schroot -l | grep -o "chroot:${schroot_name}")
+set -e
+
+schroot_target="/srv/chroot/${schroot_name}"
+
 # if [[ ${arch} == arm* ]] ; then
 #     chroot_dir=/srv/chroot/${dist}-${arch}-sbuild
 #     mkdir -p ${chroot_dir}
@@ -36,8 +43,8 @@ esac
 #         ${dist} ${chroot_dir} ${url}
 # else
     sbuild-createchroot \
-        --arch=${arch} --make-sbuild-tarball=/var/lib/sbuild/${dist}-${arch}.tar.gz \
-        ${dist} `mktemp -d` ${url}
+        --arch=${arch} ${dist} \
+        "${schroot_target}" ${url}
 # fi
 
 # Ubuntu has the main and ports repositories on different URLs, so we need to
