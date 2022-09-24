@@ -38,11 +38,19 @@ jobs:
           sudo install -D -o root -g root -m 644 fastos-archive-keyring.gpg /usr/share/keyrings/fastos-archive-keyring.gpg
           sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/fastos-archive-keyring.gpg] http://www.fastken.com/aptrepo/fastos/ fastos main" > /etc/apt/sources.list.d/fastos.list'
           sudo apt-get update
-          sudo apt-get install build-essential devscripts sbuild schroot debootstrap debhelper libfuse3-dev libaio-dev rename -y
-      - name: create chroot
+          sudo apt-get install build-essential devscripts sbuild debhelper \
+           libfuse3-dev libaio-dev rename -y
+          sudo sbuild-adduser $USER
+      - name: Determine build architecture
         run: |
-          sudo sbuild-adduser $(whoami)
-          sudo sbuild-createchroot --arch ${{matrix.arch}} ${{matrix.dist}} /srv/chroot/${{matrix.dist}}-${{matrix.arch}}-sbuild
+          if [ ${{ matrix.arch }} = "i386" ]; then
+              BUILD_ARCH=i386
+          else
+              BUILD_ARCH=amd64
+          fi
+          echo "BUILD_ARCH=${BUILD_ARCH}" >> $GITHUB_ENV
+      - name: Prepare sbuild environment
+        run: sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ env.BUILD_ARCH }}
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
@@ -54,16 +62,20 @@ jobs:
       - name: Build libfastcommon
         run: |
           cd ${{env.libfastcommon_dir}}
-          sbuild --no-run-lintian --purge-deps=never --dist=${{matrix.dist}} --arch=${{matrix.arch}}
+          rm debian/source/format
+          sudo sbuild \
+            --no-run-lintian \
+            --host ${{ matrix.arch }} \
+            --build ${{ env.BUILD_ARCH }} \
+            --dist ${{ matrix.dist }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload artifact 
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: artifact
+          name: binary-${{ matrix.dist }}-${{ matrix.arch }}
           path: |
             modules/*/*.deb
             modules/*/*.ddeb
-            /srv/chroot/*/debootstrap/debootstrap.log
       
