@@ -7,7 +7,6 @@ jobs:
   build-mudules:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
         dist: [buster]
         arch: [amd64, arm64]
@@ -72,12 +71,6 @@ jobs:
             --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }}
-      - name: Build Debian package
-        uses: vazmin/sbuild-debian-package@main
-        id: build-debian-package
-        with:
-          distro: ${{ matrix.dist }}
-          arch: ${{ matrix.arch }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload binary package artifact 
