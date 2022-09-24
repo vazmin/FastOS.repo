@@ -53,7 +53,7 @@ jobs:
           mkdir -p ${{env.dist}}
       - name: Prepare sbuild environment
         run: |
-          sudo ./mkdeb/create-chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
+          sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
           sudo schroot -l
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
