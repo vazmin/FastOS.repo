@@ -35,14 +35,16 @@ jobs:
         run: |
           git config --global user.name "vazmin"
           git config --global user.email "chwingwong@outlook.com"
-          echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" | sudo tee -a "/etc/apt/sources.list.d/backports.list"
           sudo apt-get update -yqq
           sudo apt-get install -yqq --no-install-recommends \
            build-essential devscripts \
            sbuild debhelper schroot debootstrap \
            rename
-          sudo apt-get install -yqq --no-install-recommends \
-           qemu-user-static -t bullseye-backports
+          # echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" | sudo tee -a "/etc/apt/sources.list.d/backports.list"
+          # sudo apt-get update -yqq
+          # sudo apt-get install -yqq --no-install-recommends \
+          #  qemu-user-static -t bullseye-backports
+          echo "$USER"
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
         run: |
@@ -76,11 +78,21 @@ jobs:
         run: |
           cd ${{env.libfastcommon_dir}}
           echo '1.0' > debian/source/format
-          sudo sbuild \
-            --no-run-lintian \
-            --purge-deps=never
-            --arch=${{ matrix.arch }} \
-            --dist=${{ matrix.dist }} --verbose
+          dpkg-buildpackage -S --no-sign
+          cd ..
+          cp *.dsc ../../
+
+          # sudo sbuild \
+          #   --no-run-lintian \
+          #   --purge-deps=never
+          #   --arch=${{ matrix.arch }} \
+          #   --dist=${{ matrix.dist }} --verbose
+      - name: Build Debian package
+        uses: vazmin/sbuild-debian-package@main
+        id: build-debian-package
+        with:
+          distro: ${{ matrix.dist }}
+          arch: ${{ matrix.arch }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload binary package artifact 
