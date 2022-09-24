@@ -1,0 +1,65 @@
+name: FastCFS Build Action TEST
+on: 
+  push:
+    branches:
+      - act-sbuild
+jobs:
+  build-mudules:
+    matrix:
+      dist: [buster]
+      arch: [amd64, arm64]
+    run-on: ubuntu-latest
+    env:
+      libfastcommon_dir: modules/libfastcommon/source
+      libfastcommon_repo: happyfish100/libfastcommon
+      libserverframe_dir: modules/libserverframe/source
+      libserverframe_repo: happyfish100/libserverframe
+      libdiskallocator_dir: modules/libdiskallocator/source
+      libdiskallocator_repo: happyfish100/libdiskallocator
+      fastcfs_vote_client_dir: modules/fastcfs-vote-client/source
+      fastcfs_auth_client_dir: modules/fastcfs-auth-client/source
+      fastdir_client_dir: modules/fastdir-client/source
+      libfdirstorage_dir: modules/libfdirstorage/source
+      libfdirstorage_repo: vazmin/libfdirstorage-mirror
+      fastdir_dir: modules/fastdir/source
+      fastdir_repo: happyfish100/fastDIR
+      faststore_dir: modules/faststore/source
+      faststore_repo: happyfish100/faststore
+      fastcfs_dir: modules/fastcfs/source
+      fastcfs_repo: happyfish100/FastCFS
+      dist: dist
+    steps:
+      - name: set up build env
+        run: |
+          git config --global user.name "vazmin"
+          git config --global user.email "chwingwong@outlook.com"
+          curl http://www.fastken.com/aptrepo/packages.fastos.pub | gpg --dearmor > fastos-archive-keyring.gpg
+          sudo install -D -o root -g root -m 644 fastos-archive-keyring.gpg /usr/share/keyrings/fastos-archive-keyring.gpg
+          sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/fastos-archive-keyring.gpg] http://www.fastken.com/aptrepo/fastos/ fastos main" > /etc/apt/sources.list.d/fastos.list'
+          sudo apt-get update
+          sudo apt-get install build-essential devscripts sbuild schroot debootstrap debhelper libfuse3-dev libaio-dev rename -y
+      - name: create chroot
+        run: |
+          sudo sbuild-adduser $(whoami)
+          sudo sbuild-createchroot --arch ${{matrix.arch}} ${{matrix.dist}} /srv/chroot/${{matrix.dist}}-${{matrix.arch}}-sbuild
+      - name: Checkout libfastcommon
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfastcommon_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.libfastcommon_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Build libfastcommon
+        run: |
+          cd ${{env.libfastcommon_dir}}
+          sbuild --no-run-lintian --purge-deps=never --dist=${{matrix.dist}} --arch=${{matrix.arch}}
+      - name: Copy libfastcommon .deb .ddeb to Dist
+        run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
+      - name: Upload artifact 
+        uses: actions/upload-artifact@v3
+        with:
+          name: FastOS-debian-pkg
+          path: |
+            modules/*/*.deb
+            modules/*/*.ddeb
