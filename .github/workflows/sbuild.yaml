@@ -5,8 +5,9 @@ on:
       - act-sbuild
 jobs:
   build-mudules:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         dist: [buster]
         arch: [amd64, arm64]
@@ -38,12 +39,8 @@ jobs:
           sudo apt-get update -yqq
           sudo apt-get install -yqq --no-install-recommends \
            build-essential devscripts \
-           sbuild debhelper schroot debootstrap \
+           sbuild debhelper schroot debootstrap debian-archive-keyring qemu-user-static binfmt-support \
            rename
-          # echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" | sudo tee -a "/etc/apt/sources.list.d/backports.list"
-          # sudo apt-get update -yqq
-          # sudo apt-get install -yqq --no-install-recommends \
-          #  qemu-user-static -t bullseye-backports
           echo "$USER"
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
@@ -54,18 +51,10 @@ jobs:
           sed -i 's/export //g' /tmp/version.out
           echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
           mkdir -p ${{env.dist}}
-      # - name: Determine build architecture
-      #   run: |
-      #     if [ ${{ matrix.arch }} = "i386" ]; then
-      #         BUILD_ARCH=i386
-      #     else
-      #         BUILD_ARCH=amd64
-      #     fi
-      #     echo "BUILD_ARCH=${BUILD_ARCH}" >> $GITHUB_ENV
-      # - name: Prepare sbuild environment
-      #   run: |
-      #     sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ matrix.arch }}
-      #     sudo schroot -l
+      - name: Prepare sbuild environment
+        run: |
+          sudo ./mkdeb/create-chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
+          sudo schroot -l
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
@@ -78,15 +67,11 @@ jobs:
         run: |
           cd ${{env.libfastcommon_dir}}
           echo '1.0' > debian/source/format
-          dpkg-buildpackage -S --no-sign
-          cd ..
-          cp *.dsc ../../
-
-          # sudo sbuild \
-          #   --no-run-lintian \
-          #   --purge-deps=never
-          #   --arch=${{ matrix.arch }} \
-          #   --dist=${{ matrix.dist }} --verbose
+          sudo sbuild --verbose \
+            --no-run-lintian \
+            --purge-deps=never
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }}
       - name: Build Debian package
         uses: vazmin/sbuild-debian-package@main
         id: build-debian-package
