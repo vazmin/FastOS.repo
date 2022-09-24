@@ -5,7 +5,7 @@ on:
       - act-sbuild
 jobs:
   build-mudules:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         dist: [buster]
