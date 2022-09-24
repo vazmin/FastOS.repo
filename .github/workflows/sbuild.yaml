@@ -80,7 +80,7 @@ jobs:
             --no-run-lintian \
             --purge-deps=never
             --arch=${{ matrix.arch }} \
-            --dist=${{ matrix.dist }}
+            --dist=${{ matrix.dist }} --verbose
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload binary package artifact 
