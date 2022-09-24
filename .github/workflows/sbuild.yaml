@@ -59,8 +59,11 @@ jobs:
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload artifact 
         uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: FastOS-debian-pkg
+          name: artifact
           path: |
             modules/*/*.deb
             modules/*/*.ddeb
+            /srv/chroot/*/debootstrap/debootstrap.log
+      
