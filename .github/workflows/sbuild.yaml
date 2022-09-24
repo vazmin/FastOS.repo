@@ -69,7 +69,7 @@ jobs:
           echo '1.0' > debian/source/format
           sudo sbuild --verbose \
             --no-run-lintian \
-            --purge-deps=never
+            --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }}
       - name: Build Debian package
