@@ -25,20 +25,20 @@ case "$disttype" in
         exit 1
 esac
 
-if [[ ${arch} == arm* ]] ; then
-    chroot_dir=/srv/chroot/${dist}-${arch}-sbuild
-    mkdir -p ${chroot_dir}
-    debootstrap --foreign --no-check-gpg --include=fakeroot,build-essential \
-            --arch=${arch} ${dist} ${chroot_dir} ${url}
-    cp /usr/bin/qemu-arm-static ${chroot_dir}/usr/bin/
-    chroot ${chroot_dir} ./debootstrap/debootstrap --second-stage
-    sbuild-createchroot --arch=${arch} --make-sbuild-tarball=/var/lib/sbuild/${dist}-${arch}.tar.gz --foreign --setup-only \
-        ${dist} ${chroot_dir} ${url}
-else
+# if [[ ${arch} == arm* ]] ; then
+#     chroot_dir=/srv/chroot/${dist}-${arch}-sbuild
+#     mkdir -p ${chroot_dir}
+#     debootstrap --foreign --no-check-gpg --include=fakeroot,build-essential \
+#             --arch=${arch} ${dist} ${chroot_dir} ${url}
+#     cp /usr/bin/qemu-arm-static ${chroot_dir}/usr/bin/
+#     chroot ${chroot_dir} ./debootstrap/debootstrap --second-stage
+#     sbuild-createchroot --arch=${arch} --make-sbuild-tarball=/var/lib/sbuild/${dist}-${arch}.tar.gz --foreign --setup-only \
+#         ${dist} ${chroot_dir} ${url}
+# else
     sbuild-createchroot \
         --arch=${arch} --make-sbuild-tarball=/var/lib/sbuild/${dist}-${arch}.tar.gz \
         ${dist} `mktemp -d` ${url}
-fi
+# fi
 
 # Ubuntu has the main and ports repositories on different URLs, so we need to
 # properly set up /etc/apt/sources.list to make cross compilation work.

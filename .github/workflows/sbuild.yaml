@@ -5,7 +5,7 @@ on:
       - act-sbuild
 jobs:
   build-mudules:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         dist: [buster]
@@ -35,14 +35,11 @@ jobs:
         run: |
           git config --global user.name "vazmin"
           git config --global user.email "chwingwong@outlook.com"
-          curl http://www.fastken.com/aptrepo/packages.fastos.pub | gpg --dearmor > fastos-archive-keyring.gpg
-          sudo install -D -o root -g root -m 644 fastos-archive-keyring.gpg /usr/share/keyrings/fastos-archive-keyring.gpg
-          sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/fastos-archive-keyring.gpg] http://www.fastken.com/aptrepo/fastos/ fastos main" > /etc/apt/sources.list.d/fastos.list'
           sudo apt-get update
-          sudo apt-get install build-essential devscripts \
-           sbuild debhelper \
-           qemu-user-static binfmt-support \
-           libfuse3-dev libaio-dev rename -y
+          sudo apt-get install -yqq --no-install-recommends \
+           build-essential devscripts \
+           sbuild debhelper schroot debootstrap \
+           rename
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
         run: |
@@ -76,8 +73,9 @@ jobs:
           echo '1.0' > debian/source/format
           sudo sbuild \
             --no-run-lintian \
-            --arch ${{ matrix.arch }} \
-            --dist ${{ matrix.dist }}
+            --purge-deps=never
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
       - name: Upload binary package artifact 
