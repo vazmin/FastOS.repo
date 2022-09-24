@@ -5,10 +5,11 @@ on:
       - act-sbuild
 jobs:
   build-mudules:
-    matrix:
-      dist: [buster]
-      arch: [amd64, arm64]
     run-on: ubuntu-latest
+    strategy:
+      matrix:
+        dist: [buster]
+        arch: [amd64, arm64]
     env:
       libfastcommon_dir: modules/libfastcommon/source
       libfastcommon_repo: happyfish100/libfastcommon
