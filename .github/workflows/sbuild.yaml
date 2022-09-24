@@ -50,16 +50,16 @@ jobs:
           sed -i 's/export //g' /tmp/version.out
           echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
           mkdir -p ${{env.dist}}
-      - name: Determine build architecture
-        run: |
-          if [ ${{ matrix.arch }} = "i386" ]; then
-              BUILD_ARCH=i386
-          else
-              BUILD_ARCH=amd64
-          fi
-          echo "BUILD_ARCH=${BUILD_ARCH}" >> $GITHUB_ENV
+      # - name: Determine build architecture
+      #   run: |
+      #     if [ ${{ matrix.arch }} = "i386" ]; then
+      #         BUILD_ARCH=i386
+      #     else
+      #         BUILD_ARCH=amd64
+      #     fi
+      #     echo "BUILD_ARCH=${BUILD_ARCH}" >> $GITHUB_ENV
       - name: Prepare sbuild environment
-        run: sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ env.BUILD_ARCH }}
+        run: sudo ./mkdeb/setup_sbuild.sh ${{ matrix.dist }} ${{ env.arch }}
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
@@ -71,11 +71,10 @@ jobs:
       - name: Build libfastcommon
         run: |
           cd ${{env.libfastcommon_dir}}
-          rm debian/source/format
+          echo '1.0' > debian/source/format
           sudo sbuild \
             --no-run-lintian \
-            --host ${{ matrix.arch }} \
-            --build ${{ env.BUILD_ARCH }} \
+            --arch ${{ matrix.arch }} \
             --dist ${{ matrix.dist }}
       - name: Copy libfastcommon .deb .ddeb to Dist
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
