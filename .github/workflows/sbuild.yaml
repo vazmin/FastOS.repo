@@ -297,6 +297,7 @@ jobs:
         run: |
           cd ${{env.faststore_dir}}
           echo '1.0' > debian/source/format
+          cp ${GITHUB_WORKSPACE}/mkdeb/fstore-control debian/control
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
