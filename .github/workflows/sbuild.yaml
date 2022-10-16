@@ -182,6 +182,7 @@ jobs:
       - name: Build fastcfs-auth-client
         run: |
           cd ${{env.fastcfs_auth_client_dir}}
+          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
           echo '1.0' > debian/source/format
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
@@ -320,6 +321,7 @@ jobs:
       - name: Build fastcfs
         run: |
           cd ${{env.fastcfs_dir}}
+          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
