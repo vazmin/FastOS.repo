@@ -153,8 +153,8 @@ jobs:
       - name: Build fastcfs-vote-client
         run: |
           cd ${{env.fastcfs_vote_client_dir}}
+          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
           echo '1.0' > debian/source/format
-          ls -l ${GITHUB_WORKSPACE}/depend
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
