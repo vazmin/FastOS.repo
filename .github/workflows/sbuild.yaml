@@ -29,7 +29,7 @@ jobs:
       fastcfs_dir: modules/fastcfs/source
       fastcfs_repo: happyfish100/FastCFS
       dist: dist
-      dist_config: dist/config
+      dist_config: dist_config
     steps:
       - uses: actions/checkout@v3
       - name: set up build env
@@ -50,6 +50,7 @@ jobs:
           sed -i 's/export //g' /tmp/version.out
           echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
           mkdir -p ${{env.dist}}
+          mkdir -p ${{env.dist_config}}
       - name: Prepare sbuild environment
         run: |
           sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
@@ -158,8 +159,8 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.vote.client" \
-            --extra-package=${GITHUB_WORKSPACE}/depend
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-vote-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
