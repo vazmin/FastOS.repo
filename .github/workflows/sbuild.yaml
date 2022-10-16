@@ -160,7 +160,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.vote.client" \
+            --debbuildopt="-Ppkg.vote.client"
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-vote-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
