@@ -77,6 +77,7 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }}
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy libfastcommon .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libfc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
@@ -102,7 +103,8 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy libserverframe .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libsf == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
@@ -128,7 +130,8 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy libdiskallocator .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libda == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
@@ -154,8 +157,9 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.vote.client"
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-vote-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_vote_client_dir}}/../*.*deb  ${{env.dist}}
@@ -181,8 +185,9 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.auth.client"
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-auth-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsac == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_auth_client_dir}}/../*.*deb  ${{env.dist}}
@@ -208,8 +213,9 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.client"
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastdir-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fdirc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastdir_client_dir}}/../*.*deb  ${{env.dist}}
@@ -235,7 +241,8 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy libfdirstorage .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
@@ -261,8 +268,9 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.server"
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastdir .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fdir == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastdir_dir}}/../*.*deb  ${{env.dist}}
@@ -288,7 +296,8 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy faststore .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fstore == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.faststore_dir}}/../*.*deb  ${{env.dist}}
@@ -313,11 +322,12 @@ jobs:
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --extra-package=${GITHUB_WORKSPACE}/depend \
             --debbuildopt="-Ppkg.fastcfs.core"
       - name: Copy fastcfs .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
+      # Module FastCFS fcfs END
 
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
