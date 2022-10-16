@@ -154,11 +154,12 @@ jobs:
         run: |
           cd ${{env.fastcfs_vote_client_dir}}
           echo '1.0' > debian/source/format
+          ll ${GITHUB_WORKSPACE}/depend
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.vote.client"
+            --debbuildopt="-Ppkg.vote.client" \
+            --extra-package=${GITHUB_WORKSPACE}/depend
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-vote-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
