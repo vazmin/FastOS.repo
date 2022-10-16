@@ -154,7 +154,7 @@ jobs:
         run: |
           cd ${{env.fastcfs_vote_client_dir}}
           echo '1.0' > debian/source/format
-          ll ${GITHUB_WORKSPACE}/depend
+          ls -l ${GITHUB_WORKSPACE}/depend
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
