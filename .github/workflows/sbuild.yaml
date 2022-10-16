@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         dist: [buster]
-        arch: [amd64, arm64]
+        arch: [amd64]
     env:
       libfastcommon_dir: modules/libfastcommon/source
       libfastcommon_repo: happyfish100/libfastcommon
@@ -29,6 +29,7 @@ jobs:
       fastcfs_dir: modules/fastcfs/source
       fastcfs_repo: happyfish100/FastCFS
       dist: dist
+      dist_config: dist/config
     steps:
       - uses: actions/checkout@v3
       - name: set up build env
@@ -40,7 +41,6 @@ jobs:
            build-essential devscripts \
            sbuild debhelper schroot debootstrap debian-archive-keyring qemu-user-static binfmt-support \
            rename
-          echo "$USER"
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
         run: |
@@ -54,6 +54,10 @@ jobs:
         run: |
           sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
           sudo schroot -l
+      - name: Set Build Params
+        run: cat BUILD_PARAMS >> $GITHUB_ENV
+
+      # Module libfastcommon libfc BEGIN
       - name: Checkout libfastcommon
         uses: actions/checkout@v3
         with: 
@@ -62,17 +66,259 @@ jobs:
           path: ${{env.libfastcommon_dir}}
           persist-credentials: false
           fetch-depth: 0 
+      - name: Update libfastcommon substars & changelog
+        if: ${{ env.all == 'Y' || env.libfc == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfastcommon_dir}} ${{env.libfastcommon_revision}}     
       - name: Build libfastcommon
         run: |
           cd ${{env.libfastcommon_dir}}
           echo '1.0' > debian/source/format
-          sudo sbuild --verbose \
-            --no-run-lintian \
-            --purge-deps=never \
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }}
       - name: Copy libfastcommon .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libfastcommon_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfastcommon libfc END
+      
+      # Module libserverframe libsf BEGIN
+      - name: Checkout libserverframe
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libserverframe_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.libserverframe_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libserverframe substars & changelog
+        if: ${{ env.all == 'Y' || env.libsf == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libserverframe_dir}} ${{env.libserverframe_revision}}
+      - name: Build libserverframe
+        run: |
+          cd ${{env.libserverframe_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+      - name: Copy libserverframe .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libsf == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libserverframe_dir}}/../*.*deb  ${{env.dist}}
+      # Module libserverframe libsf END
+
+      # Module libdiskallocator libda BEGIN
+      - name: Checkout libdiskallocator
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libdiskallocator_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.libdiskallocator_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libdiskallocator substars & changelog
+        if: ${{ env.all == 'Y' || env.libda == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libdiskallocator_dir}} ${{env.libdiskallocator_revision}}
+      - name: Build libdiskallocator
+        run: |
+          cd ${{env.libdiskallocator_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+      - name: Copy libdiskallocator .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libda == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
+      # Module libdiskallocator libda END
+      
+      # Module fastcfs-vote-client fcfsvc BEGIN
+      - name: Checkout fastcfs-vote-client
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastcfs_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastcfs_vote_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS Vote Client substars & changelog
+        if: ${{ env.all == 'Y' || env.fcfsvc == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastcfs_vote_client_dir}} ${{env.fastcfs_revision}}
+      - name: Build fastcfs-vote-client
+        run: |
+          cd ${{env.fastcfs_vote_client_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --debbuildopt="-Ppkg.vote.client"
+      - name: Copy fastcfs-vote-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastcfs_vote_client_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastcfs-vote-client fcfsvc END
+
+      # Module fastcfs-auth-client fcfsac BEGIN
+      - name: Checkout fastcfs-auth-client
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastcfs_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastcfs_auth_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS Auth Client substars & changelog
+        if: ${{ env.all == 'Y' || env.fcfsac == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastcfs_auth_client_dir}} ${{env.fastcfs_revision}}
+      - name: Build fastcfs-auth-client
+        run: |
+          cd ${{env.fastcfs_auth_client_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --debbuildopt="-Ppkg.auth.client"
+      - name: Copy fastcfs-auth-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fcfsac == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastcfs_auth_client_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastcfs-auth-client fcfsac END
+
+      # Module fastdir-client fdirc BEGIN
+      - name: Checkout fastdir-client
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastdir_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastdir_client_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update fastDIR Client substars & changelog
+        if: ${{ env.all == 'Y' || env.fdirc == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastdir_client_dir}} ${{env.fastdir_revision}}
+      - name: Build fastdir-client
+        run: |
+          cd ${{env.fastdir_client_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --debbuildopt="-Ppkg.client"
+      - name: Copy fastdir-client .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fdirc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastdir_client_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastdir-client fdirc END
+      
+      # Module libfdirstorage libfdirs BEGIN
+      - name: Checkout libfdirstorage
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfdirstorage_repo}}
+          token: ${{secrets.GH_PAT}}
+          path: ${{env.libfdirstorage_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfdirstorage substars & changelog
+        if: ${{ env.all == 'Y' || env.libfdirs == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
+      - name: Build libfdirstorage
+        run: |
+          cd ${{env.libfdirstorage_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+      - name: Copy libfdirstorage .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfdirstorage libfdirs END
+
+      # Module fastdir fdir BEGIN
+      - name: Checkout fastdir
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastdir_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastdir_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update fastDIR substars & changelog
+        if: ${{ env.all == 'Y' || env.fdir == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastdir_dir}} ${{env.fastdir_revision}}
+      - name: Build fastdir
+        run: |
+          cd ${{env.fastdir_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --debbuildopt="-Ppkg.server"
+      - name: Copy fastdir .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fdir == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastdir_dir}}/../*.*deb  ${{env.dist}}
+      # Module fastdir fdir END
+
+      # Module faststore fstore BEGIN
+      - name: Checkout faststore
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.faststore_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.faststore_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update faststore substars & changelog
+        if: ${{ env.all == 'Y' || env.fstore == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.faststore_dir}} ${{env.faststore_revision}}
+      - name: Build faststore
+        run: |
+          cd ${{env.faststore_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/
+      - name: Copy faststore .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fstore == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.faststore_dir}}/../*.*deb  ${{env.dist}}
+      # Module faststore fstore END
+
+      # Module FastCFS fcfs BEGIN
+      - name: Checkout fastcfs
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.fastcfs_repo}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{env.fastcfs_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update FastCFS substars & changelog
+        if: ${{ env.all == 'Y' || env.fcfs == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.fastcfs_dir}} ${{env.fastcfs_revision}}
+      - name: Build fastcfs
+        run: |
+          cd ${{env.fastcfs_dir}}
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/modules/*/ \
+            --debbuildopt="-Ppkg.fastcfs.core"
+      - name: Copy fastcfs .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.fcfs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
+
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
         if: always()

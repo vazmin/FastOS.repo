@@ -13,7 +13,7 @@ SECDEB_MIRROR=http://deb.debian.org/debian-security
 UBUNTU_MIRROR=http://azure.archive.ubuntu.com/ubuntu
 UBUNTU_PORTS_MIRROR=http://ports.ubuntu.com/ubuntu-ports
 
-EXTRA_PACKAGES=eatmydata,ccache,gnupg
+EXTRA_PACKAGES=eatmydata,ccache,gnupg,libaio-dev
 
 chroot_name=${BUILD_DIST}-${BUILD_ARCH}
 chroot_path=/srv/chroot/${chroot_name}
