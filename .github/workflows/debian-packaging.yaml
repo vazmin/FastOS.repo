@@ -57,12 +57,12 @@ jobs:
           mkdir -p ${{env.dist}}
           mkdir -p ${{env.dist_config}}
           mkdir -p ${{env.dist_debug}}
+      - name: Set Build Params
+        run: cat BUILD_PARAMS >> $GITHUB_ENV
       - name: Prepare sbuild environment
         run: |
           sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
           sudo schroot -l
-      - name: Set Build Params
-        run: cat BUILD_PARAMS >> $GITHUB_ENV
 
       # Module libfastcommon libfc BEGIN
       - name: Checkout libfastcommon
