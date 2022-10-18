@@ -2,4 +2,4 @@ all=Y
 R=Y
 release_dist='["buster"]'
 release_arch='["amd64"]'
-release_title="Release v3.6.2"
+release_title='Release v3.6.2'

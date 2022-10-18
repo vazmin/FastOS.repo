@@ -476,7 +476,8 @@ jobs:
               $(cat /tmp/version.out)
           END
           )
-          hub release create "${assets[@]}" -m "${{env.release_title}} ${{ matrix.dist }}-${{ matrix.arch }} $MESSAGE" "$GITHUB_REF_NAME"
+          title="${{env.release_title}}-${{ matrix.dist }}-${{ matrix.arch }}""
+          hub release create "${assets[@]}" -m " $MESSAGE" "$GITHUB_REF_NAME"
       # Release end
       # Post
       - name: Delete libfdirstorage source
