@@ -1,4 +1,4 @@
-name: FastCFS Build Action TEST
+name: FastCFS Debian Packaging
 on: 
   push:
     branches:
@@ -10,6 +10,10 @@ jobs:
       matrix:
         dist: [buster]
         arch: [amd64]
+        include:
+          - dist: buster
+            arch: amd64
+            gitpush: Y 
     env:
       libfastcommon_dir: modules/libfastcommon/source
       libfastcommon_repo: happyfish100/libfastcommon
@@ -30,6 +34,7 @@ jobs:
       fastcfs_repo: happyfish100/FastCFS
       dist: dist
       dist_config: dist_config
+      dist_debug: dist_debug
     steps:
       - uses: actions/checkout@v3
       - name: set up build env
@@ -51,6 +56,7 @@ jobs:
           echo "$(cat /tmp/version.out)" >> $GITHUB_ENV
           mkdir -p ${{env.dist}}
           mkdir -p ${{env.dist_config}}
+          mkdir -p ${{env.dist_debug}}
       - name: Prepare sbuild environment
         run: |
           sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
@@ -154,7 +160,6 @@ jobs:
       - name: Build fastcfs-vote-client
         run: |
           cd ${{env.fastcfs_vote_client_dir}}
-          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
           echo '1.0' > debian/source/format
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
@@ -183,7 +188,6 @@ jobs:
       - name: Build fastcfs-auth-client
         run: |
           cd ${{env.fastcfs_auth_client_dir}}
-          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
           echo '1.0' > debian/source/format
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
@@ -268,7 +272,6 @@ jobs:
         run: |
           cd ${{env.fastdir_dir}}
           echo '1.0' > debian/source/format
-          cp ${GITHUB_WORKSPACE}/mkdeb/fdir-control debian/control
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
@@ -297,7 +300,6 @@ jobs:
         run: |
           cd ${{env.faststore_dir}}
           echo '1.0' > debian/source/format
-          cp ${GITHUB_WORKSPACE}/mkdeb/fstore-control debian/control
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
@@ -324,7 +326,7 @@ jobs:
       - name: Build fastcfs
         run: |
           cd ${{env.fastcfs_dir}}
-          cp ${GITHUB_WORKSPACE}/mkdeb/fcfs-control debian/control
+          echo '1.0' > debian/source/format
           sudo sbuild --verbose --no-run-lintian --purge-deps=never \
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
@@ -335,6 +337,74 @@ jobs:
         run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
       # Module FastCFS fcfs END
 
+      # Push Steps Start
+      - name: Push libfastcommon changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libfc == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfastcommon_dir}}
+          repository: ${{env.libfastcommon_repo}}
+      - name: Push libserverframe changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libsf == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libserverframe_dir}}
+          repository: ${{env.libserverframe_repo}}
+      - name: Push libdiskallocator changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libda == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: main
+          directory: ${{env.libdiskallocator_dir}}
+          repository: ${{env.libdiskallocator_repo}}
+      - name: Push libfdirstorage changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfdirstorage_dir}}
+          repository: ${{env.libfdirstorage_repo}}
+      - name: Push fastdir changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.fdir == 'Y' || env.fdirc == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.fastdir_dir}}
+          repository: ${{env.fastdir_repo}}
+      - name: Push faststore changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.fstore == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.faststore_dir}}
+          repository: ${{env.faststore_repo}}
+      - name: Push fastcfs changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.fcfs == 'Y' || env.fcfsac == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.fastcfs_dir}}
+          repository: ${{env.fastcfs_repo}}
+      # Push Steps End
+
+
+      - name: Copy config artifact
+        if: ${{env.D == 'Y' || env.R == 'Y'}}
+        run: |
+          mv ${{env.dist}}/*-config_*.* ${{env.dist_config}}
+          mv ${{env.dist}}/*-dbgsym_*.* ${{env.dist_debug}}
+      - name: Rename ddeb to deb
+        if: ${{matrix.dist == 'ubuntu'}}
+        run: rename 's/\.ddeb/\.deb/' ${{env.dist_debug}}/*.ddeb 
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
         if: always()
@@ -343,4 +413,76 @@ jobs:
           path: |
             modules/*/*.deb
             modules/*/*.ddeb
+
+
+      # Deploy to Repo Start
+      - name: Install SSH key
+        if: ${{ env.D == 'Y' || env.DD == 'Y' }}
+        uses: vazmin/ssh-key-action@v2
+        with:
+          key: ${{ secrets.REPO_SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Add to Repo
+        if: ${{ env.D == 'Y' }}
+        run: |
+          EXP=/tmp/reprepro.exp
+          scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
+          REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
+          # send deb to remote
+          rsync -avz ${{env.dist}}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
+          # add to reprepro
+          ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
+           "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
+           -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
+      - name: Add to Debug Repo
+        if: ${{ env.DD == 'Y' }}
+        run: |
+          EXP=/tmp/reprepro.exp
+          scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
+          REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
+          # send deb to remote
+          rsync -avz ${env.dist_debug}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
+          # add to reprepro
+          ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
+           "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
+           -b /usr/html/aptrepo/fastos-debug includedeb fastos-debug ${REMOTE_DEB_DIR}/*.deb"
+      # Deploy to Repo End
+      # Release start
+      - name: zip dist files
+        if: ${{env.R == 'Y'}}
+        run: |
+          zip binary-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist}}/*
+          zip binary-debug-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_debug}}/*
+          zip binary-config-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_config}}/*
+      - name: Create Release
+        id: create_release
+        if: ${{env.R == 'Y' && contains(fromJson(env.release_dist), matrix.dist) && contains(fromJson(env.release_arch), matrix.arch)}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -x
+          assets=()
+          # for asset in ${{env.dist}}/*.*deb; do
+          #   assets+=("-a" "$asset")
+          # done
+          # assets+=("-a" "./FastOS-debain.zip")
+          for asset in *.zip; do
+            assets+=("-a" "$asset")
+          done
+          MESSAGE=$(cat <<-END
+              
+              $(echo " ")
+              $(cat /tmp/version.out)
+          END
+          )
+          hub release create "${assets[@]}" -m "${{env.release_title}} ${{ matrix.dist }}-${{ matrix.arch }} $MESSAGE" "$GITHUB_REF_NAME"
+      # Release end
+      # Post
+      - name: Delete libfdirstorage source
+        if: always()
+        run: rm -rf ${{env.libfdirstorage_dir}}
+
       
+
+
