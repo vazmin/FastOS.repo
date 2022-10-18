@@ -160,7 +160,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.vote.client"
+            --profiles='pkg.vote.client'
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-vote-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsvc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
@@ -189,7 +189,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.auth.client"
+            --profiles='pkg.auth.client'
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastcfs-auth-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfsac == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
@@ -217,7 +217,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.client"
+            --profiles="pkg.client"
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastdir-client .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fdirc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
@@ -273,7 +273,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.server"
+            --profiles="pkg.server"
           cp ../*.*deb ${GITHUB_WORKSPACE}/depend
       - name: Copy fastdir .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fdir == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
@@ -329,7 +329,7 @@ jobs:
             --arch=${{ matrix.arch }} \
             --dist=${{ matrix.dist }} \
             --extra-package=${GITHUB_WORKSPACE}/depend \
-            --debbuildopt="-Ppkg.fastcfs.core"
+            --profiles="pkg.fastcfs.core"
       - name: Copy fastcfs .deb .ddeb to Dist
         if: ${{ (env.all == 'Y' || env.fcfs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}

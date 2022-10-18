@@ -3,9 +3,9 @@ Section: admin
 Priority: optional
 Maintainer: YuQing <384681@qq.com>
 Build-Depends: debhelper (>=11~),
-               fastdir-dev (>= 3.2.0),
-               faststore-dev (>= 3.2.0),
-               libfuse3-dev (>= 3.10.1),
+               fastdir-dev (>= 3.2.0) <pkg.fastcfs.core>,
+               faststore-dev (>= 3.2.0) <pkg.fastcfs.core>,
+               libfuse3-dev (>= 3.10.1) <pkg.fastcfs.core>,
                libfastcommon-dev (>= 1.0.56),
                libserverframe-dev (>= 1.1.13)
 Standards-Version: 4.1.4
