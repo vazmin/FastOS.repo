@@ -58,4 +58,4 @@ esac
 sudo sbuild-createchroot "${args[@]}"  "${BUILD_DIST}" "${chroot_path}" "$mirror"
 stat "$tarball"
 
-echo "artifact_path=${tarball}" >> $GITHUB_OUTPUT
+# echo "artifact_path=${tarball}" >> $GITHUB_OUTPUT
