@@ -457,6 +457,7 @@ jobs:
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
         with:
+          name: release-binary-${{ matrix.dist }}-${{ matrix.arch }}
           path: |
             *.zip
       # Release end
@@ -490,7 +491,7 @@ jobs:
         run: |
           set -x
           assets=()
-          for asset in *.zip; do
+          for asset in release-binary-*/*.zip; do
             assets+=("-a" "$asset")
           done
           hub release create "${assets[@]}" -F /tmp/version.out "${{env.build_tag}}"
