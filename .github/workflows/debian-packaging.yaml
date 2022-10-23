@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        dist: [buster]
+        dist: [bionic, buster]
         arch: [amd64, arm64]
         include:
           - dist: buster
@@ -456,9 +456,7 @@ jobs:
           zip binary-config-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_config}}/*
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
-        if: always()
         with:
-          name: release-binary-${{ matrix.dist }}-${{ matrix.arch }}
           path: |
             *.zip
       # Release end
@@ -492,7 +490,7 @@ jobs:
         run: |
           set -x
           assets=()
-          for asset in release-binary-*/*.zip; do
+          for asset in *.zip; do
             assets+=("-a" "$asset")
           done
           hub release create "${assets[@]}" -F /tmp/version.out "${{env.build_tag}}"
