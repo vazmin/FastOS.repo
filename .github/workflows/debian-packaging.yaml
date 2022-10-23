@@ -57,8 +57,7 @@ jobs:
           mkdir -p ${{env.dist}}
           mkdir -p ${{env.dist_config}}
           mkdir -p ${{env.dist_debug}}
-      - name: Set Build Params
-        run: cat BUILD_PARAMS >> $GITHUB_ENV
+          cat BUILD_PARAMS >> $GITHUB_ENV
       - name: Prepare sbuild environment
         run: |
           sudo ./mkdeb/create_chroot.sh ${{ matrix.dist }} ${{ matrix.arch }}
@@ -455,6 +454,35 @@ jobs:
           zip binary-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist}}/*
           zip binary-debug-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_debug}}/*
           zip binary-config-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_config}}/*
+      - name: Upload binary package artifact 
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: release-binary-${{ matrix.dist }}-${{ matrix.arch }}
+          path: |
+            *.zip
+      # Release end
+      # Post
+      - name: Delete libfdirstorage source
+        if: always()
+        run: rm -rf ${{env.libfdirstorage_dir}}
+  release:
+    runs-on: ubuntu-latest
+    needs: build-mudules
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get binary packages
+        uses: actions/download-artifact@v3
+      - name: Gen substvars and Environment variable
+        run: |
+          . version
+          envsubst < mkdeb/substvars.in >> substvars
+          envsubst < version >> /tmp/version.out
+          sed -i 's/export //g' /tmp/version.out
+          cat BUILD_PARAMS >> $GITHUB_ENV
+          title="${{env.release_title}}"
+          sed -i "1s/^/$title\n\n/" /tmp/version.out
+         
       - name: Create Release
         id: create_release
         if: ${{env.R == 'Y' && contains(fromJson(env.release_dist), matrix.dist) && contains(fromJson(env.release_arch), matrix.arch)}}
@@ -463,22 +491,7 @@ jobs:
         run: |
           set -x
           assets=()
-          # for asset in ${{env.dist}}/*.*deb; do
-          #   assets+=("-a" "$asset")
-          # done
-          # assets+=("-a" "./FastOS-debain.zip")
-          for asset in *.zip; do
+          for asset in release-binary-*/*.zip; do
             assets+=("-a" "$asset")
           done
-          title="${{env.release_title}} ${{ matrix.dist }} ${{ matrix.arch }}"
-          sed -i "1s/^/$title\n\n/" /tmp/version.out
           hub release create "${assets[@]}" -F /tmp/version.out "${{env.build_tag}}"
-      # Release end
-      # Post
-      - name: Delete libfdirstorage source
-        if: always()
-        run: rm -rf ${{env.libfdirstorage_dir}}
-
-      
-
-
