@@ -7,4 +7,4 @@ deploy_debug_arch='["amd64", "arm64"]'
 release_dist='["buster"]'
 release_arch='["amd64", "arm64"]'
 release_title=Release v3.6.2
-build_tag=PKG_v3.6.2_all_P_R
+build_tag=FastCFS-v3.6.2
