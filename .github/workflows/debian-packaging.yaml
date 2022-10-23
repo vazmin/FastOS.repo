@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         dist: [buster]
-        arch: [amd64]
+        arch: [amd64, arm64]
         include:
           - dist: buster
             arch: amd64
@@ -424,7 +424,7 @@ jobs:
           name: id_rsa
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - name: Add to Repo
-        if: ${{ env.D == 'Y' }}
+        if: ${{ env.D == 'Y' && contains(fromJson(env.deploy_dist), matrix.dist) && contains(fromJson(env.deploy_arch), matrix.arch)}}
         run: |
           EXP=/tmp/reprepro.exp
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
@@ -436,7 +436,7 @@ jobs:
            "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
            -b /usr/html/aptrepo/fastos includedeb stable ${REMOTE_DEB_DIR}/*.deb"
       - name: Add to Debug Repo
-        if: ${{ env.DD == 'Y' }}
+        if: ${{ env.DD == 'Y' && contains(fromJson(env.deploy_debug_dist), matrix.dist) && contains(fromJson(env.deploy_debug_arch), matrix.arch)}}
         run: |
           EXP=/tmp/reprepro.exp
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
@@ -470,14 +470,9 @@ jobs:
           for asset in *.zip; do
             assets+=("-a" "$asset")
           done
-          MESSAGE=$(cat <<-END
-              
-              $(echo " ")
-              $(cat /tmp/version.out)
-          END
-          )
-          title="${{env.release_title}}-${{ matrix.dist }}-${{ matrix.arch }}""
-          hub release create "${assets[@]}" -m " $MESSAGE" "$GITHUB_REF_NAME"
+          title="${{env.release_title}} ${{ matrix.dist }} ${{ matrix.arch }}""
+          sed -i "1s/^/$title\n\n/" /tmp/version.out
+          hub release create "${assets[@]}" -F /tmp/version.out "$GITHUB_REF_NAME"
       # Release end
       # Post
       - name: Delete libfdirstorage source

@@ -1,5 +1,9 @@
 all=Y
 R=Y
+deploy_dist='["buster"]'
+deploy_arch='["amd64", "arm64"]'
+deploy_debug_dist='["buster"]'
+deploy_debug_arch='["amd64", "arm64"]'
 release_dist='["buster"]'
-release_arch='["amd64"]'
+release_arch='["amd64", "arm64"]'
 release_title='Release v3.6.2'
