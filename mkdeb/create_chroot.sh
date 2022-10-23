@@ -21,7 +21,7 @@ tarball=$PWD/${BUILD_DIST}-${BUILD_ARCH}-sbuild.tar.gz
 
 args=(--verbose --arch="${BUILD_ARCH}" --include="$EXTRA_PACKAGES" --make-sbuild-tarball "$tarball")
 
-if ubuntu-distro-info --all | grep -Fqx "$dist"; then
+if ubuntu-distro-info --all | grep -Fqx "$BUILD_DIST"; then
     disttype="ubuntu"
 else
     disttype="debian"
