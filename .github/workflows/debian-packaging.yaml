@@ -470,7 +470,7 @@ jobs:
           for asset in *.zip; do
             assets+=("-a" "$asset")
           done
-          title="${{env.release_title}} ${{ matrix.dist }} ${{ matrix.arch }}""
+          title="${{env.release_title}} ${{ matrix.dist }} ${{ matrix.arch }}"
           sed -i "1s/^/$title\n\n/" /tmp/version.out
           hub release create "${assets[@]}" -F /tmp/version.out "$GITHUB_REF_NAME"
       # Release end
