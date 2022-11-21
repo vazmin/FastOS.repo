@@ -1,13 +1,14 @@
 all=Y
-P=Y
+P=N
 R=Y
-D=Y
+D=N
 DD=Y
 deploy_dist='["bionic"]'
-deploy_arch='["amd64", "arm64"]'
+deploy_arch='["arm64"]'
 deploy_debug_dist='["bionic"]'
 deploy_debug_arch='["amd64", "arm64"]'
 release_dist='["bionic"]'
 release_arch='["amd64", "arm64"]'
 release_title=Release v3.7.0
 build_tag=FastCFS-v3.7.0
+rename_ddeb_to_deb='["bionic"]'

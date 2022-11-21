@@ -402,7 +402,7 @@ jobs:
           mv ${{env.dist}}/*-config_*.* ${{env.dist_config}}
           mv ${{env.dist}}/*-dbgsym_*.* ${{env.dist_debug}}
       - name: Rename ddeb to deb
-        if: ${{matrix.dist == 'ubuntu'}}
+        if: ${{ contains(fromJson(env.rename_ddeb_to_deb), matrix.dist) }}
         run: rename 's/\.ddeb/\.deb/' ${{env.dist_debug}}/*.ddeb 
       - name: Upload binary package artifact 
         uses: actions/upload-artifact@v3
@@ -441,7 +441,7 @@ jobs:
           scp mkdeb/reprepro.exp ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:${EXP}
           REMOTE_DEB_DIR=/tmp/gh-actions-$(echo $RANDOM | md5sum | head -c 10)
           # send deb to remote
-          rsync -avz ${env.dist_debug}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
+          rsync -avz ${{env.dist_debug}}/*.deb ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}}:$REMOTE_DEB_DIR/
           # add to reprepro
           ssh ${{secrets.REPO_SSH_USER}}@${{secrets.REPO_SSH_HOST}} \
            "SIGNING_PASSWORD=${{secrets.REPO_SIGNING_PASSWORD}} ${EXP} -- \
