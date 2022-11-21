@@ -1,7 +1,7 @@
 all=Y
 P=N
 R=Y
-D=N
+D=Y
 DD=Y
 deploy_dist='["bionic"]'
 deploy_arch='["arm64"]'
