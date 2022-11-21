@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        dist: [bionic, buster]
+        dist: [bionic]
         arch: [amd64, arm64]
         include:
-          - dist: buster
+          - dist: bionic
             arch: amd64
             gitpush: Y 
     env:
