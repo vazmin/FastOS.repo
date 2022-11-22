@@ -1,10 +1,11 @@
-all=Y
+libfc=Y
+libsf=Y
 P=N
-R=Y
+R=N
 D=Y
 DD=Y
 deploy_dist='["bionic"]'
-deploy_arch='["arm64"]'
+deploy_arch='["amd64","arm64"]'
 deploy_debug_dist='["bionic"]'
 deploy_debug_arch='["amd64", "arm64"]'
 release_dist='["bionic"]'

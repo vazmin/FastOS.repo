@@ -1,5 +1,5 @@
-export libfastcommon_version=1.0.63
-export libserverframe_version=1.1.22
+export libfastcommon_version=1.0.64
+export libserverframe_version=1.1.23
 export libdiskallocator_version=1.0.9
 export libfdirstorage_version=1.0.9
 export fastdir_version=3.7.0
