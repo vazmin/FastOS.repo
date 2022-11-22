@@ -7,10 +7,10 @@ libfdirstorage:Version=${libdiskallocator_version}
 libdiskallocator:Version=${libfdirstorage_version}
 
 fastcfs-auth-config:Version=2.0.0
-fastcfs-auth-client:Version=3.0.0
+fastcfs-auth-client:Version=${fastcfs_version}
 
 fastcfs-vote-config:Version=3.4.0
-fastcfs-vote-client:Version=3.4.0
+fastcfs-vote-client:Version=${fastcfs_version}
 
 fastdir-config:Version=1.0.0
 fastdir-client:Version=${fastdir_version}
