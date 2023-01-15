@@ -1,8 +1,8 @@
 name: FastCFS Debian Packaging
-on: 
+on:
   push:
-    branches:
-      - act-sbuild
+    paths:
+      - "BUILD_PARAMS"
 jobs:
   build-mudules:
     runs-on: ubuntu-22.04
