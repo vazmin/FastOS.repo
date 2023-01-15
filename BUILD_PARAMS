@@ -1,8 +1,8 @@
 all=Y
-P=Y
+P=N
 R=Y
-D=Y
-DD=Y
+D=N
+DD=N
 deploy_dist='["bionic"]'
 deploy_arch='["amd64","arm64"]'
 deploy_debug_dist='["bionic"]'
