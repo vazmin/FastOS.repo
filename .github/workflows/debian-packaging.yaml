@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         dist: [bionic]
-        arch: [amd64, arm64]
+        arch: [amd64]
         include:
           - dist: bionic
             arch: amd64
@@ -26,6 +26,8 @@ jobs:
       fastdir_client_dir: modules/fastdir-client/source
       libfdirstorage_dir: modules/libfdirstorage/source
       libfdirstorage_repo: vazmin/libfdirstorage-mirror
+      libfsstorage_dir: modules/libfsstorage/source
+      libfsstorage_repo: vazmin/libfsstorage-mirror
       fastdir_dir: modules/fastdir/source
       fastdir_repo: happyfish100/fastDIR
       faststore_dir: modules/faststore/source
@@ -254,6 +256,33 @@ jobs:
         run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
       # Module libfdirstorage libfdirs END
 
+      # Module libfsstorage libfss BEGIN
+      - name: Checkout libfsstorage
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfsstorage_repo}}
+          token: ${{secrets.GH_PAT}}
+          path: ${{env.libfsstorage_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfsstorage substars & changelog
+        if: ${{ env.all == 'Y' || env.libfss == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfsstorage_dir}} ${{env.libfsstorage_revision}}
+      - name: Build libfsstorage
+        run: |
+          cd ${{env.libfsstorage_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
+      - name: Copy libfsstorage .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfss == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libfsstorage_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfsstorage libfss END
+
       # Module fastdir fdir BEGIN
       - name: Checkout fastdir
         uses: actions/checkout@v3
@@ -369,6 +398,14 @@ jobs:
           branch: master
           directory: ${{env.libfdirstorage_dir}}
           repository: ${{env.libfdirstorage_repo}}
+      - name: Push libfsstorage changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libfss == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfdirstorage_dir}}
+          repository: ${{env.libfdirstorage_repo}}
       - name: Push fastdir changes
         uses: vazmin/github-push-action@master
         if: ${{ (env.all == 'Y' || env.fdir == 'Y' || env.fdirc == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
@@ -465,6 +502,9 @@ jobs:
       - name: Delete libfdirstorage source
         if: always()
         run: rm -rf ${{env.libfdirstorage_dir}}
+      - name: Delete libfsstorage source
+        if: always()
+        run: rm -rf ${{env.libfsstorage_dir}}
   release:
     runs-on: ubuntu-latest
     needs: build-mudules
