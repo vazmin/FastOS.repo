@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         dist: [bionic]
-        arch: [amd64]
+        arch: [amd64,arm64]
         include:
           - dist: bionic
             arch: amd64
