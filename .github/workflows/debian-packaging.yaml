@@ -1,8 +1,8 @@
 name: FastCFS Debian Packaging
 on:
   push:
-    paths:
-      - "BUILD_PARAMS"
+    tags:        
+      - FastCFS-v**
 jobs:
   build-mudules:
     runs-on: ubuntu-22.04
@@ -228,60 +228,6 @@ jobs:
         if: ${{ (env.all == 'Y' || env.fdirc == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastdir_client_dir}}/../*.*deb  ${{env.dist}}
       # Module fastdir-client fdirc END
-      
-      # Module libfdirstorage libfdirs BEGIN
-      - name: Checkout libfdirstorage
-        uses: actions/checkout@v3
-        with: 
-          repository: ${{env.libfdirstorage_repo}}
-          token: ${{secrets.GH_PAT}}
-          path: ${{env.libfdirstorage_dir}}
-          persist-credentials: false
-          fetch-depth: 0 
-      - name: Update libfdirstorage substars & changelog
-        if: ${{ env.all == 'Y' || env.libfdirs == 'Y' }}
-        run: |
-          ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
-      - name: Build libfdirstorage
-        run: |
-          cd ${{env.libfdirstorage_dir}}
-          echo '1.0' > debian/source/format
-          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
-            --arch=${{ matrix.arch }} \
-            --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/depend
-          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
-      - name: Copy libfdirstorage .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
-        run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
-      # Module libfdirstorage libfdirs END
-
-      # Module libfsstorage libfss BEGIN
-      - name: Checkout libfsstorage
-        uses: actions/checkout@v3
-        with: 
-          repository: ${{env.libfsstorage_repo}}
-          token: ${{secrets.GH_PAT}}
-          path: ${{env.libfsstorage_dir}}
-          persist-credentials: false
-          fetch-depth: 0 
-      - name: Update libfsstorage substars & changelog
-        if: ${{ env.all == 'Y' || env.libfss == 'Y' }}
-        run: |
-          ./aio/changlelog_substars.sh ${{env.libfsstorage_dir}} ${{env.libfsstorage_revision}}
-      - name: Build libfsstorage
-        run: |
-          cd ${{env.libfsstorage_dir}}
-          echo '1.0' > debian/source/format
-          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
-            --arch=${{ matrix.arch }} \
-            --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/depend
-          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
-      - name: Copy libfsstorage .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' || env.libfss == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
-        run: cp ${{env.libfsstorage_dir}}/../*.*deb  ${{env.dist}}
-      # Module libfsstorage libfss END
 
       # Module fastdir fdir BEGIN
       - name: Checkout fastdir
@@ -364,6 +310,62 @@ jobs:
         if: ${{ (env.all == 'Y' || env.fcfs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.fastcfs_dir}}/../*.*deb  ${{env.dist}}
       # Module FastCFS fcfs END
+
+      # Plugins BEGIN
+      # Module libfdirstorage libfdirs BEGIN
+      - name: Checkout libfdirstorage
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfdirstorage_repo}}
+          token: ${{secrets.GH_PAT}}
+          path: ${{env.libfdirstorage_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfdirstorage substars & changelog
+        if: ${{ env.all == 'Y' || env.libfdirs == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfdirstorage_dir}} ${{env.libfdirstorage_revision}}
+      - name: Build libfdirstorage
+        run: |
+          cd ${{env.libfdirstorage_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
+      - name: Copy libfdirstorage .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfdirs == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libfdirstorage_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfdirstorage libfdirs END
+
+      # Module libfsstorage libfss BEGIN
+      - name: Checkout libfsstorage
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfsstorage_repo}}
+          token: ${{secrets.GH_PAT}}
+          path: ${{env.libfsstorage_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfsstorage substars & changelog
+        if: ${{ env.all == 'Y' || env.libfss == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfsstorage_dir}} ${{env.libfsstorage_revision}}
+      - name: Build libfsstorage
+        run: |
+          cd ${{env.libfsstorage_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
+      - name: Copy libfsstorage .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfss == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libfsstorage_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfsstorage libfss END
+      # Plugins END
 
       # Push Steps Start
       - name: Push libfastcommon changes
