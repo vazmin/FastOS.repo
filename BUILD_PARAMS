@@ -1,5 +1,5 @@
-all=N
-libfc=N
+all=Y
+libfc=Y
 libsf=Y
 libda=Y
 fcfsvc=Y
@@ -20,6 +20,6 @@ deploy_debug_dist='["bionic"]'
 deploy_debug_arch='["amd64", "arm64"]'
 release_dist='["bionic"]'
 release_arch='["amd64"]'
-release_title=Release v4.1.0
-build_tag=FastCFS-v4.1.0
+release_title=Release v4.2.0
+build_tag=FastCFS-v4.2.0
 rename_ddeb_to_deb='["bionic"]'
