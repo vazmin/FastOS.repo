@@ -50,7 +50,7 @@ jobs:
           sudo apt-get install -yqq --no-install-recommends \
            build-essential devscripts \
            sbuild debhelper schroot debootstrap debian-archive-keyring qemu-user-static binfmt-support \
-           rename
+           rename hub
           sudo sbuild-adduser $USER
       - name: Gen substvars and Environment variable
         run: |
