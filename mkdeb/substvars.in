@@ -4,6 +4,7 @@ libserverframe:Version=${libserverframe_version}
 
 libfdirstorage:Version=${libdiskallocator_version}
 libfsstorage:Version=${libfsstorage_version}
+libfastrdma:Version=${libfastrdma_version}
 
 libdiskallocator:Version=${libfdirstorage_version}
 
