@@ -147,7 +147,34 @@ jobs:
         if: ${{ (env.all == 'Y' || env.libda == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
         run: cp ${{env.libdiskallocator_dir}}/../*.*deb  ${{env.dist}}
       # Module libdiskallocator libda END
-      
+
+      # Module libfastrdma libfrdma BEGIN
+      - name: Checkout libfastrdma
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{env.libfastrdma_repo}}
+          token: ${{secrets.GH_PAT}}
+          path: ${{env.libfastrdma_dir}}
+          persist-credentials: false
+          fetch-depth: 0 
+      - name: Update libfastrdma substars & changelog
+        if: ${{ env.all == 'Y' || env.libfrdma == 'Y' }}
+        run: |
+          ./aio/changlelog_substars.sh ${{env.libfastrdma_dir}} ${{env.libfastrdma_revision}}
+      - name: Build libfastrdma
+        run: |
+          cd ${{env.libfastrdma_dir}}
+          echo '1.0' > debian/source/format
+          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
+            --arch=${{ matrix.arch }} \
+            --dist=${{ matrix.dist }} \
+            --extra-package=${GITHUB_WORKSPACE}/depend
+          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
+      - name: Copy libfastrdma .deb .ddeb to Dist
+        if: ${{ (env.all == 'Y' || env.libfrdma == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
+        run: cp ${{env.libfastrdma_dir}}/../*.*deb  ${{env.dist}}
+      # Module libfastrdma libfrdma END
+
       # Module fastcfs-vote-client fcfsvc BEGIN
       - name: Checkout fastcfs-vote-client
         uses: actions/checkout@v3
@@ -369,33 +396,6 @@ jobs:
         run: cp ${{env.libfsstorage_dir}}/../*.*deb  ${{env.dist}}
       # Module libfsstorage libfss END
 
-      # Module libfastrdma libfrdma BEGIN
-      - name: Checkout libfastrdma
-        uses: actions/checkout@v3
-        with: 
-          repository: ${{env.libfastrdma_repo}}
-          token: ${{secrets.GH_PAT}}
-          path: ${{env.libfastrdma_dir}}
-          persist-credentials: false
-          fetch-depth: 0 
-      - name: Update libfastrdma substars & changelog
-        if: ${{ env.all == 'Y' || env.libfrdma == 'Y' }}
-        run: |
-          ./aio/changlelog_substars.sh ${{env.libfastrdma_dir}} ${{env.libfastrdma_revision}}
-      - name: Build libfastrdma
-        run: |
-          cd ${{env.libfastrdma_dir}}
-          echo '1.0' > debian/source/format
-          sudo sbuild --verbose --no-run-lintian --purge-deps=never \
-            --arch=${{ matrix.arch }} \
-            --dist=${{ matrix.dist }} \
-            --extra-package=${GITHUB_WORKSPACE}/depend
-          cp ../*.*deb ${GITHUB_WORKSPACE}/depend
-      - name: Copy libfastrdma .deb .ddeb to Dist
-        if: ${{ (env.all == 'Y' || env.libfrdma == 'Y') && (env.D == 'Y' || env.R == 'Y')}}
-        run: cp ${{env.libfastrdma_dir}}/../*.*deb  ${{env.dist}}
-      # Module libfastrdma libfrdma END
-
       # Plugins END
 
       # Push Steps Start
@@ -437,8 +437,16 @@ jobs:
         with:
           github_token: ${{ secrets.GH_PAT }}
           branch: master
-          directory: ${{env.libfdirstorage_dir}}
-          repository: ${{env.libfdirstorage_repo}}
+          directory: ${{env.libfsstorage_dir}}
+          repository: ${{env.libfsstorage_repo}}
+      - name: Push libfastrdma changes
+        uses: vazmin/github-push-action@master
+        if: ${{ (env.all == 'Y' || env.libfrdma == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          branch: master
+          directory: ${{env.libfastrdma_dir}}
+          repository: ${{env.libfastrdma_repo}}
       - name: Push fastdir changes
         uses: vazmin/github-push-action@master
         if: ${{ (env.all == 'Y' || env.fdir == 'Y' || env.fdirc == 'Y') && env.P == 'Y' && matrix.gitpush == 'Y'}}
@@ -545,6 +553,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get binary packages
         uses: actions/download-artifact@v3
+      - name: Install packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y hub
       - name: Set build params
         run: cat BUILD_PARAMS >> $GITHUB_ENV
       - name: Gen substvars and Environment variable
