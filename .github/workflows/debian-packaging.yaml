@@ -41,7 +41,7 @@ jobs:
       dist_config: dist_config
       dist_debug: dist_debug
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: set up build env
         run: |
           git config --global user.name "vazmin"
@@ -70,7 +70,7 @@ jobs:
 
       # Module libfastcommon libfc BEGIN
       - name: Checkout libfastcommon
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libfastcommon_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -96,7 +96,7 @@ jobs:
       
       # Module libserverframe libsf BEGIN
       - name: Checkout libserverframe
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libserverframe_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -123,7 +123,7 @@ jobs:
 
       # Module libdiskallocator libda BEGIN
       - name: Checkout libdiskallocator
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libdiskallocator_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -150,7 +150,7 @@ jobs:
 
       # Module libfastrdma libfrdma BEGIN
       - name: Checkout libfastrdma
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libfastrdma_repo}}
           token: ${{secrets.GH_PAT}}
@@ -177,7 +177,7 @@ jobs:
 
       # Module fastcfs-vote-client fcfsvc BEGIN
       - name: Checkout fastcfs-vote-client
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -205,7 +205,7 @@ jobs:
 
       # Module fastcfs-auth-client fcfsac BEGIN
       - name: Checkout fastcfs-auth-client
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -233,7 +233,7 @@ jobs:
 
       # Module fastdir-client fdirc BEGIN
       - name: Checkout fastdir-client
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.fastdir_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -261,7 +261,7 @@ jobs:
 
       # Module fastdir fdir BEGIN
       - name: Checkout fastdir
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.fastdir_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -289,7 +289,7 @@ jobs:
 
       # Module faststore fstore BEGIN
       - name: Checkout faststore
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.faststore_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -316,7 +316,7 @@ jobs:
 
       # Module FastCFS fcfs BEGIN
       - name: Checkout fastcfs
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.fastcfs_repo}}
           token: ${{secrets.GITHUB_TOKEN}}
@@ -344,7 +344,7 @@ jobs:
       # Plugins BEGIN
       # Module libfdirstorage libfdirs BEGIN
       - name: Checkout libfdirstorage
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libfdirstorage_repo}}
           token: ${{secrets.GH_PAT}}
@@ -371,7 +371,7 @@ jobs:
 
       # Module libfsstorage libfss BEGIN
       - name: Checkout libfsstorage
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{env.libfsstorage_repo}}
           token: ${{secrets.GH_PAT}}
@@ -483,7 +483,7 @@ jobs:
         if: ${{ contains(fromJson(env.rename_ddeb_to_deb), matrix.dist) }}
         run: rename 's/\.ddeb/\.deb/' ${{env.dist_debug}}/*.ddeb 
       - name: Upload binary package artifact 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: binary-${{ matrix.dist }}-${{ matrix.arch }}
@@ -533,7 +533,7 @@ jobs:
           zip binary-debug-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_debug}}/*
           zip binary-config-${{ matrix.dist }}-${{ matrix.arch }} ${{env.dist_config}}/*
       - name: Upload binary package artifact 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-binary-${{ matrix.dist }}-${{ matrix.arch }}
           path: |
@@ -550,9 +550,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-mudules
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get binary packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Install packages
         run: |
           sudo apt-get update && sudo apt-get install -y hub
